@@ -1,0 +1,3284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LostLink — KUET Campus Lost & Found</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    /* ═══════════════════════════════════════════════
+   RESET & ROOT
+═══════════════════════════════════════════════ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --navy: #080F1A;
+      --navy2: #0D1826;
+      --navy3: #132030;
+      --navy4: #1A2A3E;
+      --cyan: #00C2E0;
+      --cyan2: #0099B8;
+      --gold: #F5A623;
+      --gold2: #D4891C;
+      --green: #22D07A;
+      --red: #F0524F;
+      --purple: #9B72F5;
+      --border: rgba(255, 255, 255, 0.07);
+      --border2: rgba(0, 194, 224, 0.2);
+      --txt: #E8EFF8;
+      --txt2: #7A92A8;
+      --txt3: #4A6070;
+      --glow: 0 0 30px rgba(0, 194, 224, 0.12);
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--navy);
+      color: var(--txt);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ═══════════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════════ */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--navy2);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--navy4);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--cyan2);
+    }
+
+    /* ═══════════════════════════════════════════════
+   PAGES (auth / app)
+═══════════════════════════════════════════════ */
+    .page {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .page.active {
+      display: flex;
+    }
+
+    /* ═══════════════════════════════════════════════
+   AUTH PAGE
+═══════════════════════════════════════════════ */
+    #page-auth {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: var(--navy);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .auth-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .auth-bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.12;
+    }
+
+    .auth-bg-circle.c1 {
+      width: 500px;
+      height: 500px;
+      background: var(--cyan);
+      top: -150px;
+      left: -100px;
+    }
+
+    .auth-bg-circle.c2 {
+      width: 400px;
+      height: 400px;
+      background: var(--purple);
+      bottom: -100px;
+      right: -80px;
+    }
+
+    .auth-bg-circle.c3 {
+      width: 300px;
+      height: 300px;
+      background: var(--gold);
+      top: 40%;
+      left: 30%;
+    }
+
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+      z-index: 1;
+    }
+
+    .auth-logo-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--cyan);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(0, 194, 224, 0.4);
+    }
+
+    .auth-logo-icon i {
+      font-size: 22px;
+      color: var(--navy);
+    }
+
+    .auth-logo-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--txt);
+    }
+
+    .auth-logo-sub {
+      font-size: 11px;
+      color: var(--txt2);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .auth-card {
+      background: var(--navy2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 40px;
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--navy);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 28px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 9px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--txt2);
+      transition: all 0.2s;
+    }
+
+    .auth-tab.active {
+      background: var(--cyan);
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    .auth-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .auth-sub {
+      font-size: 13px;
+      color: var(--txt2);
+      margin-bottom: 24px;
+    }
+
+    .form-row {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--txt2);
+      margin-bottom: 6px;
+      display: block;
+      letter-spacing: 0.3px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--navy);
+      color: var(--txt);
+      font-size: 14px;
+      font-family: 'Outfit', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(0, 194, 224, 0.1);
+    }
+
+    .form-input::placeholder {
+      color: var(--txt3);
+    }
+
+    .input-icon-wrap {
+      position: relative;
+    }
+
+    .input-icon-wrap .form-input {
+      padding-left: 40px;
+    }
+
+    .input-icon-wrap .i-icon {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--txt3);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    .btn-auth {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--cyan);
+      border: none;
+      color: var(--navy);
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-auth:hover {
+      background: var(--cyan2);
+      box-shadow: 0 4px 20px rgba(0, 194, 224, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .auth-divider {
+      text-align: center;
+      color: var(--txt3);
+      font-size: 12px;
+      margin: 20px 0;
+      position: relative;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: calc(50% - 30px);
+      height: 1px;
+      background: var(--border);
+    }
+
+    .auth-divider::before {
+      left: 0;
+    }
+
+    .auth-divider::after {
+      right: 0;
+    }
+
+    .auth-demo {
+      background: rgba(0, 194, 224, 0.06);
+      border: 1px solid rgba(0, 194, 224, 0.15);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 12px;
+      color: var(--txt2);
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+
+    .auth-demo strong {
+      color: var(--cyan);
+    }
+
+    /* ═══════════════════════════════════════════════
+   MAIN APP LAYOUT
+═══════════════════════════════════════════════ */
+    #page-app {
+      flex-direction: row;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 230px;
+      min-width: 230px;
+      background: var(--navy2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      transition: width 0.25s;
+      overflow: hidden;
+    }
+
+    .sidebar-logo {
+      padding: 20px 18px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 34px;
+      height: 34px;
+      background: var(--cyan);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 14px rgba(0, 194, 224, 0.35);
+    }
+
+    .logo-icon i {
+      font-size: 18px;
+      color: var(--navy);
+    }
+
+    .logo-txt {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--txt);
+    }
+
+    .logo-campus {
+      font-size: 10px;
+      color: var(--txt2);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .nav {
+      padding: 14px 10px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .nav-section {
+      font-size: 10px;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--txt3);
+      padding: 8px 8px 4px;
+      margin-top: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--txt2);
+      margin-bottom: 2px;
+      transition: all 0.15s;
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--txt);
+    }
+
+    .nav-item.active {
+      background: rgba(0, 194, 224, 0.1);
+      color: var(--cyan);
+      font-weight: 500;
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 20%;
+      height: 60%;
+      width: 3px;
+      background: var(--cyan);
+      border-radius: 0 3px 3px 0;
+    }
+
+    .nav-item i {
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 8px;
+    }
+
+    .nav-badge.blue {
+      background: var(--cyan);
+    }
+
+    .nav-badge.red {
+      background: var(--red);
+    }
+
+    .sidebar-bottom {
+      border-top: 1px solid var(--border);
+      padding: 12px 10px;
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .user-pill:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--navy);
+      flex-shrink: 0;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--txt);
+      line-height: 1.2;
+    }
+
+    .user-role {
+      font-size: 11px;
+      color: var(--txt2);
+    }
+
+    .logout-btn {
+      margin-left: auto;
+      color: var(--txt3);
+      font-size: 16px;
+      padding: 4px;
+      border-radius: 5px;
+      transition: color 0.15s;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      color: var(--red);
+    }
+
+    /* MAIN CONTENT */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .topbar {
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--navy2);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--txt);
+      flex: 1;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: var(--navy);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      max-width: 260px;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+
+    .search-box:focus-within {
+      border-color: var(--cyan2);
+    }
+
+    .search-box i {
+      font-size: 16px;
+      color: var(--txt3);
+    }
+
+    .search-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 13px;
+      color: var(--txt);
+      width: 100%;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .search-box input::placeholder {
+      color: var(--txt3);
+    }
+
+    .topbar-notif {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--navy);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: border-color 0.15s;
+    }
+
+    .topbar-notif:hover {
+      border-color: var(--cyan2);
+    }
+
+    .topbar-notif i {
+      font-size: 18px;
+      color: var(--txt2);
+    }
+
+    .notif-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      border: 2px solid var(--navy2);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--navy3);
+      color: var(--txt);
+      font-family: 'Outfit', sans-serif;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: var(--navy4);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .btn-primary {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      background: var(--cyan2);
+      border-color: var(--cyan2);
+      box-shadow: 0 4px 16px rgba(0, 194, 224, 0.25);
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    .btn-gold:hover {
+      background: var(--gold2);
+    }
+
+    .btn-sm {
+      padding: 5px 11px;
+      font-size: 12px;
+      border-radius: 7px;
+    }
+
+    .btn-danger {
+      background: rgba(240, 82, 79, 0.1);
+      border-color: rgba(240, 82, 79, 0.3);
+      color: var(--red);
+    }
+
+    .btn-danger:hover {
+      background: rgba(240, 82, 79, 0.2);
+    }
+
+    .btn-success {
+      background: rgba(34, 208, 122, 0.1);
+      border-color: rgba(34, 208, 122, 0.3);
+      color: var(--green);
+    }
+
+    .btn-success:hover {
+      background: rgba(34, 208, 122, 0.2);
+    }
+
+    /* CONTENT AREA */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    /* PANELS */
+    .panel {
+      display: none;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════
+   COMMON COMPONENTS
+═══════════════════════════════════════════════ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--navy2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .stat-card:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+    }
+
+    .stat-card.cyan::before {
+      background: var(--cyan);
+    }
+
+    .stat-card.green::before {
+      background: var(--green);
+    }
+
+    .stat-card.gold::before {
+      background: var(--gold);
+    }
+
+    .stat-card.red::before {
+      background: var(--red);
+    }
+
+    .stat-card.purple::before {
+      background: var(--purple);
+    }
+
+    .stat-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .stat-icon.cyan {
+      background: rgba(0, 194, 224, 0.12);
+      color: var(--cyan);
+    }
+
+    .stat-icon.green {
+      background: rgba(34, 208, 122, 0.12);
+      color: var(--green);
+    }
+
+    .stat-icon.gold {
+      background: rgba(245, 166, 35, 0.12);
+      color: var(--gold);
+    }
+
+    .stat-icon.red {
+      background: rgba(240, 82, 79, 0.12);
+      color: var(--red);
+    }
+
+    .stat-icon.purple {
+      background: rgba(155, 114, 245, 0.12);
+      color: var(--purple);
+    }
+
+    .stat-icon i {
+      font-size: 20px;
+    }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--txt);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--txt2);
+      margin-top: 5px;
+    }
+
+    .stat-delta {
+      font-size: 11px;
+      margin-top: 8px;
+    }
+
+    .stat-delta.up {
+      color: var(--green);
+    }
+
+    .stat-delta.down {
+      color: var(--red);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--txt);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+
+    .badge-lost {
+      background: rgba(240, 82, 79, 0.1);
+      color: #F27472;
+      border: 1px solid rgba(240, 82, 79, 0.2);
+    }
+
+    .badge-found {
+      background: rgba(34, 208, 122, 0.1);
+      color: #22D07A;
+      border: 1px solid rgba(34, 208, 122, 0.2);
+    }
+
+    .badge-matched {
+      background: rgba(245, 166, 35, 0.1);
+      color: var(--gold);
+      border: 1px solid rgba(245, 166, 35, 0.2);
+    }
+
+    .badge-active {
+      background: rgba(0, 194, 224, 0.1);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 194, 224, 0.2);
+    }
+
+    .badge-pending {
+      background: rgba(245, 166, 35, 0.08);
+      color: var(--gold);
+      border: 1px solid rgba(245, 166, 35, 0.15);
+    }
+
+    .badge-approved {
+      background: rgba(34, 208, 122, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(34, 208, 122, 0.2);
+    }
+
+    .badge-rejected {
+      background: rgba(240, 82, 79, 0.1);
+      color: var(--red);
+      border: 1px solid rgba(240, 82, 79, 0.2);
+    }
+
+    .badge-claimed {
+      background: rgba(155, 114, 245, 0.1);
+      color: var(--purple);
+      border: 1px solid rgba(155, 114, 245, 0.2);
+    }
+
+    .badge-returned {
+      background: rgba(34, 208, 122, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(34, 208, 122, 0.2);
+    }
+
+    .badge-recovered {
+      background: rgba(34, 208, 122, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(34, 208, 122, 0.2);
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      color: var(--txt2);
+      transition: all 0.15s;
+    }
+
+    .chip:hover {
+      border-color: rgba(0, 194, 224, 0.3);
+      color: var(--txt);
+    }
+
+    .chip.active {
+      background: rgba(0, 194, 224, 0.1);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* TABLE */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      padding: 11px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--txt2);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--txt);
+      vertical-align: middle;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr {
+      transition: background 0.1s;
+    }
+
+    tbody tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .td-main {
+      font-weight: 500;
+    }
+
+    .td-sub {
+      font-size: 11px;
+      color: var(--txt2);
+      margin-top: 2px;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--navy2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .item-card {
+      background: var(--navy2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .item-card:hover {
+      border-color: rgba(0, 194, 224, 0.3);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .item-card.has-match {
+      border-left: 3px solid var(--gold);
+    }
+
+    .item-card.is-found {
+      border-left: 3px solid var(--green);
+    }
+
+    .item-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .item-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .item-icon.lost {
+      background: rgba(240, 82, 79, 0.12);
+      color: var(--red);
+    }
+
+    .item-icon.found {
+      background: rgba(34, 208, 122, 0.12);
+      color: var(--green);
+    }
+
+    .item-icon i {
+      font-size: 19px;
+    }
+
+    .item-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--txt);
+      line-height: 1.3;
+    }
+
+    .item-loc {
+      font-size: 11px;
+      color: var(--txt2);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .item-loc i {
+      font-size: 12px;
+    }
+
+    .item-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .item-date {
+      font-size: 11px;
+      color: var(--txt3);
+    }
+
+    /* PROGRESS */
+    .progress {
+      height: 4px;
+      background: var(--navy);
+      border-radius: 2px;
+      overflow: hidden;
+      flex: 1;
+      max-width: 80px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--cyan);
+      transition: width 0.4s ease;
+    }
+
+    /* MATCH CARD */
+    .match-card {
+      background: var(--navy2);
+      border: 1px solid rgba(245, 166, 35, 0.2);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+
+    .match-card:hover {
+      border-color: rgba(245, 166, 35, 0.4);
+    }
+
+    .match-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .match-score-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245, 166, 35, 0.1);
+      border: 1px solid rgba(245, 166, 35, 0.2);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .match-body {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .match-item {
+      background: var(--navy3);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .match-item-label {
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--txt3);
+      margin-bottom: 6px;
+    }
+
+    .match-item-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--txt);
+    }
+
+    .match-item-loc {
+      font-size: 11px;
+      color: var(--txt2);
+      margin-top: 3px;
+    }
+
+    .match-arrow {
+      color: var(--txt3);
+      font-size: 22px;
+    }
+
+    .match-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .match-reporters {
+      font-size: 11px;
+      color: var(--txt3);
+    }
+
+    /* ALERT BANNER */
+    .alert-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .alert-banner.gold {
+      background: rgba(245, 166, 35, 0.07);
+      border: 1px solid rgba(245, 166, 35, 0.2);
+      color: var(--txt);
+    }
+
+    .alert-banner.cyan {
+      background: rgba(0, 194, 224, 0.07);
+      border: 1px solid rgba(0, 194, 224, 0.2);
+      color: var(--txt);
+    }
+
+    .alert-banner.green {
+      background: rgba(34, 208, 122, 0.07);
+      border: 1px solid rgba(34, 208, 122, 0.2);
+      color: var(--txt);
+    }
+
+    .alert-banner i {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .alert-banner.gold i {
+      color: var(--gold);
+    }
+
+    .alert-banner.cyan i {
+      color: var(--cyan);
+    }
+
+    .alert-banner.green i {
+      color: var(--green);
+    }
+
+    .alert-link {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--cyan);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .alert-link:hover {
+      text-decoration: underline;
+    }
+
+    /* FORM */
+    .form-card {
+      background: var(--navy2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+    }
+
+    .form-section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--txt2);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-field.full {
+      grid-column: span 2;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--txt2);
+    }
+
+    .form-input-app {
+      padding: 10px 13px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--navy);
+      color: var(--txt);
+      font-size: 13px;
+      font-family: 'Outfit', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input-app:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(0, 194, 224, 0.08);
+    }
+
+    .form-input-app::placeholder {
+      color: var(--txt3);
+    }
+
+    select.form-input-app {
+      cursor: pointer;
+    }
+
+    select.form-input-app option {
+      background: var(--navy2);
+    }
+
+    textarea.form-input-app {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .form-hint {
+      font-size: 11px;
+      color: var(--txt3);
+      margin-top: 2px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .form-tab-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .form-tab {
+      padding: 9px 20px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      color: var(--txt2);
+      transition: all 0.2s;
+    }
+
+    .form-tab.active {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    .success-toast {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      background: rgba(34, 208, 122, 0.08);
+      border: 1px solid rgba(34, 208, 122, 0.2);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+    }
+
+    .success-toast.show {
+      display: flex;
+    }
+
+    .success-toast i {
+      font-size: 22px;
+      color: var(--green);
+    }
+
+    .success-toast strong {
+      color: var(--green);
+    }
+
+    /* NOTIFICATIONS PANEL */
+    .notif-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .notif-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .notif-item:last-child {
+      border-bottom: none;
+    }
+
+    .notif-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .notif-icon.match {
+      background: rgba(245, 166, 35, 0.12);
+      color: var(--gold);
+    }
+
+    .notif-icon.claim {
+      background: rgba(34, 208, 122, 0.12);
+      color: var(--green);
+    }
+
+    .notif-icon.info {
+      background: rgba(0, 194, 224, 0.12);
+      color: var(--cyan);
+    }
+
+    .notif-icon i {
+      font-size: 18px;
+    }
+
+    .notif-text {
+      font-size: 13px;
+      color: var(--txt);
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .notif-time {
+      font-size: 11px;
+      color: var(--txt3);
+      margin-top: 3px;
+    }
+
+    .notif-unread {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    /* ANALYTICS */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .chart-card {
+      background: var(--navy2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .chart-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--txt);
+      margin-bottom: 18px;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .bar-label {
+      font-size: 12px;
+      color: var(--txt2);
+      width: 90px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 8px;
+      background: var(--navy);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.8s ease;
+    }
+
+    .bar-val {
+      font-size: 12px;
+      color: var(--txt2);
+      width: 28px;
+      text-align: right;
+    }
+
+    .hotspot-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hotspot-item:last-child {
+      border-bottom: none;
+    }
+
+    .hotspot-rank {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--border);
+      width: 28px;
+    }
+
+    .hotspot-name {
+      font-size: 13px;
+      color: var(--txt);
+      flex: 1;
+    }
+
+    .hotspot-count {
+      font-size: 12px;
+      color: var(--txt2);
+    }
+
+    .recovery-arc {
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .arc-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--cyan);
+    }
+
+    .arc-label {
+      font-size: 13px;
+      color: var(--txt2);
+    }
+
+    /* ADMIN TABLE extras */
+    .claim-row td {
+      vertical-align: middle;
+    }
+
+    .proof-tags span {
+      display: inline-block;
+      background: var(--navy3);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 2px 8px;
+      font-size: 11px;
+      color: var(--txt2);
+      margin-right: 4px;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--navy2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+      animation: modalIn 0.2s ease;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      color: var(--txt3);
+      cursor: pointer;
+      font-size: 20px;
+      transition: color 0.15s;
+    }
+
+    .modal-close:hover {
+      color: var(--red);
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    /* DETAIL ROWS */
+    .detail-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .detail-key {
+      color: var(--txt2);
+      width: 110px;
+      flex-shrink: 0;
+    }
+
+    .detail-val {
+      color: var(--txt);
+      font-weight: 500;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .items-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .analytics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-field.full {
+        grid-column: span 1;
+      }
+
+      .match-body {
+        grid-template-columns: 1fr;
+      }
+
+      .match-arrow {
+        display: none;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .sidebar {
+        display: none;
+      }
+    }
+
+    /* TAG */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--navy3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 9px;
+      font-size: 11px;
+      color: var(--txt2);
+    }
+
+    /* Profile page */
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 24px;
+      background: var(--navy2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 20px;
+    }
+
+    .profile-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--navy);
+      flex-shrink: 0;
+    }
+
+    .profile-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .profile-email {
+      font-size: 13px;
+      color: var(--txt2);
+      margin-top: 4px;
+    }
+
+    .profile-badges {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .profile-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .profile-stat {
+      background: var(--navy2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .profile-stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--cyan);
+    }
+
+    .profile-stat-label {
+      font-size: 12px;
+      color: var(--txt2);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════════════════════════
+     AUTH PAGE
+══════════════════════════════════════════════════ -->
+  <div id="page-auth" class="page active">
+    <div class="auth-bg">
+      <div class="auth-bg-circle c1"></div>
+      <div class="auth-bg-circle c2"></div>
+      <div class="auth-bg-circle c3"></div>
+    </div>
+
+    <div class="auth-logo">
+      <div class="auth-logo-icon"><i class="ti ti-map-pin-search"></i></div>
+      <div>
+        <div class="auth-logo-text">LostLink</div>
+        <div style="font-size:11px;color:var(--txt2);letter-spacing:1.5px;text-transform:uppercase">KUET Campus</div>
+      </div>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-login" onclick="authTab('login')">Sign In</div>
+        <div class="auth-tab" id="tab-signup" onclick="authTab('signup')">Register</div>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="form-login">
+        <div class="auth-title">Welcome back</div>
+        <div class="auth-sub">Sign in to your LostLink account</div>
+        <div class="form-row">
+          <label class="form-label">Email Address</label>
+          <div class="input-icon-wrap">
+            <i class="ti ti-mail i-icon"></i>
+            <input type="email" class="form-input" id="login-email" placeholder="you@kuet.ac.bd"
+              value="admin@kuet.ac.bd">
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Password</label>
+          <div class="input-icon-wrap">
+            <i class="ti ti-lock i-icon"></i>
+            <input type="password" class="form-input" id="login-pass" placeholder="••••••••" value="admin123">
+          </div>
+        </div>
+        <button class="btn-auth" onclick="doLogin()"><i class="ti ti-login"
+            style="font-size:16px;margin-right:4px"></i>Sign In</button>
+        <div class="auth-demo">
+          <strong>Demo credentials:</strong><br>
+          Admin: admin@kuet.ac.bd / admin123<br>
+          User: user@kuet.ac.bd / user123
+        </div>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="form-signup" style="display:none">
+        <div class="auth-title">Create account</div>
+        <div class="auth-sub">Join the KUET LostLink network</div>
+        <div class="form-row">
+          <label class="form-label">Full Name</label>
+          <div class="input-icon-wrap">
+            <i class="ti ti-user i-icon"></i>
+            <input type="text" class="form-input" placeholder="Rafiul Ahmed">
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Student / Employee ID</label>
+          <div class="input-icon-wrap">
+            <i class="ti ti-id-badge i-icon"></i>
+            <input type="text" class="form-input" placeholder="2004001">
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Email Address</label>
+          <div class="input-icon-wrap">
+            <i class="ti ti-mail i-icon"></i>
+            <input type="email" class="form-input" placeholder="you@kuet.ac.bd">
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Password</label>
+          <div class="input-icon-wrap">
+            <i class="ti ti-lock i-icon"></i>
+            <input type="password" class="form-input" placeholder="Min 8 characters">
+          </div>
+        </div>
+        <button class="btn-auth" onclick="doLogin()"><i class="ti ti-user-plus"
+            style="font-size:16px;margin-right:4px"></i>Create Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+     APP PAGE
+══════════════════════════════════════════════════ -->
+  <div id="page-app" class="page">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-wrap">
+          <div class="logo-icon"><i class="ti ti-map-pin-search"></i></div>
+          <div>
+            <div class="logo-txt">LostLink</div>
+            <div class="logo-campus">KUET Campus</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <div class="nav-section">Overview</div>
+        <div class="nav-item active" onclick="showPanel('dashboard',this)">
+          <i class="ti ti-layout-dashboard"></i> Dashboard
+        </div>
+        <div class="nav-section">Items</div>
+        <div class="nav-item" onclick="showPanel('lost',this)">
+          <i class="ti ti-alert-triangle"></i> Lost Items
+          <span class="nav-badge red">12</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('found',this)">
+          <i class="ti ti-package"></i> Found Items
+          <span class="nav-badge">8</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('matches',this)">
+          <i class="ti ti-link"></i> Smart Matches
+          <span class="nav-badge" style="background:var(--gold)">5</span>
+        </div>
+        <div class="nav-section">Actions</div>
+        <div class="nav-item" onclick="showPanel('report',this)">
+          <i class="ti ti-circle-plus"></i> File a Report
+        </div>
+        <div class="nav-item" onclick="showPanel('claims',this)">
+          <i class="ti ti-clipboard-check"></i> My Claims
+        </div>
+        <div class="nav-item" onclick="showPanel('notifications',this)">
+          <i class="ti ti-bell"></i> Notifications
+          <span class="nav-badge blue">3</span>
+        </div>
+        <div class="nav-section">Admin</div>
+        <div class="nav-item" onclick="showPanel('analytics',this)">
+          <i class="ti ti-chart-pie-2"></i> Analytics
+        </div>
+        <div class="nav-item" onclick="showPanel('admin',this)">
+          <i class="ti ti-shield-check"></i> Verify Claims
+          <span class="nav-badge red">2</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('profile',this)">
+          <i class="ti ti-user-circle"></i> My Profile
+        </div>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="user-pill">
+          <div class="avatar" id="sidebar-avatar">RA</div>
+          <div>
+            <div class="user-name" id="sidebar-name">Rafiul Ahmed</div>
+            <div class="user-role" id="sidebar-role">Admin</div>
+          </div>
+          <div class="logout-btn" onclick="doLogout()" title="Sign out"><i class="ti ti-logout"></i></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="search-box">
+          <i class="ti ti-search"></i>
+          <input type="text" placeholder="Search items, locations, IDs…">
+        </div>
+        <div class="topbar-notif"
+          onclick="showPanel('notifications', document.querySelector('.nav-item:nth-child(12)'))">
+          <i class="ti ti-bell"></i>
+          <div class="notif-dot"></div>
+        </div>
+        <button class="btn btn-primary" onclick="showPanel('report', document.querySelector('.nav-item:nth-child(9)'))">
+          <i class="ti ti-plus"></i> Report Item
+        </button>
+      </div>
+
+      <div class="content">
+
+        <!-- ══ DASHBOARD ══ -->
+        <div class="panel active" id="panel-dashboard">
+          <div class="stats-grid">
+            <div class="stat-card red">
+              <div class="stat-icon red"><i class="ti ti-alert-triangle"></i></div>
+              <div class="stat-num">47</div>
+              <div class="stat-label">Total Lost</div>
+              <div class="stat-delta up"><i class="ti ti-arrow-up" style="font-size:10px"></i> 12 this month</div>
+            </div>
+            <div class="stat-card green">
+              <div class="stat-icon green"><i class="ti ti-package"></i></div>
+              <div class="stat-num">31</div>
+              <div class="stat-label">Total Found</div>
+              <div class="stat-delta up"><i class="ti ti-arrow-up" style="font-size:10px"></i> 8 this month</div>
+            </div>
+            <div class="stat-card cyan">
+              <div class="stat-icon cyan"><i class="ti ti-circle-check"></i></div>
+              <div class="stat-num">19</div>
+              <div class="stat-label">Recovered</div>
+              <div class="stat-delta" style="color:var(--cyan)">40% recovery rate</div>
+            </div>
+            <div class="stat-card gold">
+              <div class="stat-icon gold"><i class="ti ti-clock"></i></div>
+              <div class="stat-num">6</div>
+              <div class="stat-label">Pending Claims</div>
+              <div class="stat-delta" style="color:var(--gold)">Needs admin review</div>
+            </div>
+          </div>
+
+          <div class="alert-banner gold">
+            <i class="ti ti-sparkles"></i>
+            <span><strong>Smart matching found 5 possible matches</strong> — 2 high confidence (87%+), 3 moderate
+              (50%+).</span>
+            <span class="alert-link"
+              onclick="showPanel('matches', document.querySelector('.nav-item:nth-child(7))'))">View all →</span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div>
+              <div class="section-head">
+                <div class="section-title">Recent Activity</div>
+                <div class="filter-row" style="margin:0;gap:6px">
+                  <div class="chip active" onclick="filterChips(this)">All</div>
+                  <div class="chip" onclick="filterChips(this)">Lost</div>
+                  <div class="chip" onclick="filterChips(this)">Found</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div class="item-card has-match"
+                  onclick="openItemModal('Samsung Galaxy S23','Lost','Near KUET Cafeteria','Jun 05, 2026','Electronics','Black','Crack on back glass','Matched')">
+                  <div class="item-top">
+                    <div class="item-icon lost"><i class="ti ti-device-mobile"></i></div>
+                    <div style="flex:1">
+                      <div class="item-name">Samsung Galaxy S23 (Black)</div>
+                      <div class="item-loc"><i class="ti ti-map-pin"></i> Near KUET Cafeteria</div>
+                    </div>
+                    <span class="badge badge-lost">Lost</span>
+                  </div>
+                  <div class="item-footer">
+                    <span class="item-date">Jun 05, 2026</span>
+                    <span class="badge badge-matched"><i class="ti ti-sparkles" style="font-size:10px"></i> 87%
+                      Match</span>
+                  </div>
+                </div>
+                <div class="item-card is-found"
+                  onclick="openItemModal('Black Leather Wallet','Found','ECE Department','Jun 06, 2026','Accessories','Black','Has student card inside','Unclaimed')">
+                  <div class="item-top">
+                    <div class="item-icon found"><i class="ti ti-wallet"></i></div>
+                    <div style="flex:1">
+                      <div class="item-name">Black Leather Wallet</div>
+                      <div class="item-loc"><i class="ti ti-map-pin"></i> ECE Department</div>
+                    </div>
+                    <span class="badge badge-found">Found</span>
+                  </div>
+                  <div class="item-footer">
+                    <span class="item-date">Jun 06, 2026</span>
+                    <span class="badge badge-active">Unclaimed</span>
+                  </div>
+                </div>
+                <div class="item-card"
+                  onclick="openItemModal('Blue Backpack','Lost','Library 2nd Floor','Jun 07, 2026','Bags','Blue','HP Laptop inside, sticker on front','Active')">
+                  <div class="item-top">
+                    <div class="item-icon lost"><i class="ti ti-backpack"></i></div>
+                    <div style="flex:1">
+                      <div class="item-name">Blue Backpack — HP Laptop inside</div>
+                      <div class="item-loc"><i class="ti ti-map-pin"></i> Library 2nd Floor</div>
+                    </div>
+                    <span class="badge badge-lost">Lost</span>
+                  </div>
+                  <div class="item-footer">
+                    <span class="item-date">Jun 07, 2026</span>
+                    <span class="badge badge-active">Active</span>
+                  </div>
+                </div>
+                <div class="item-card is-found"
+                  onclick="openItemModal('Student ID Card','Found','Admin Building','Jun 07, 2026','Documents','—','KUET ID Card 2001045','Claimed')">
+                  <div class="item-top">
+                    <div class="item-icon found"><i class="ti ti-id-badge"></i></div>
+                    <div style="flex:1">
+                      <div class="item-name">Student ID Card</div>
+                      <div class="item-loc"><i class="ti ti-map-pin"></i> Admin Building</div>
+                    </div>
+                    <span class="badge badge-found">Found</span>
+                  </div>
+                  <div class="item-footer">
+                    <span class="item-date">Jun 07, 2026</span>
+                    <span class="badge badge-claimed">Claimed</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="section-head">
+                <div class="section-title">Notifications</div>
+              </div>
+              <div class="card">
+                <div class="notif-list">
+                  <div class="notif-item">
+                    <div class="notif-icon match"><i class="ti ti-sparkles"></i></div>
+                    <div style="flex:1">
+                      <div class="notif-text">87% match found for your <strong>Samsung S23</strong> — a similar phone
+                        found at Cafeteria.</div>
+                      <div class="notif-time">2 hours ago</div>
+                    </div>
+                    <div class="notif-unread"></div>
+                  </div>
+                  <div class="notif-item">
+                    <div class="notif-icon claim"><i class="ti ti-clipboard-check"></i></div>
+                    <div style="flex:1">
+                      <div class="notif-text">Your claim for <strong>Black Rimmed Glasses</strong> has been <strong
+                          style="color:var(--green)">approved</strong>.</div>
+                      <div class="notif-time">Yesterday</div>
+                    </div>
+                    <div class="notif-unread"></div>
+                  </div>
+                  <div class="notif-item">
+                    <div class="notif-icon info"><i class="ti ti-info-circle"></i></div>
+                    <div style="flex:1">
+                      <div class="notif-text">A <strong>Student ID Card</strong> matching your description was turned in
+                        at Admin Building.</div>
+                      <div class="notif-time">2 days ago</div>
+                    </div>
+                    <div class="notif-unread"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ LOST ITEMS ══ -->
+        <div class="panel" id="panel-lost">
+          <div class="section-head">
+            <div class="section-title">Lost Items Registry</div>
+            <button class="btn btn-primary"
+              onclick="showPanel('report', document.querySelector('.nav-item:nth-child(9)'))"><i class="ti ti-plus"></i>
+              Report Lost</button>
+          </div>
+          <div class="filter-row">
+            <div class="chip active" onclick="filterChips(this)">All Categories</div>
+            <div class="chip" onclick="filterChips(this)">Electronics</div>
+            <div class="chip" onclick="filterChips(this)">Documents</div>
+            <div class="chip" onclick="filterChips(this)">Accessories</div>
+            <div class="chip" onclick="filterChips(this)">Bags</div>
+            <div class="chip" onclick="filterChips(this)">Keys</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Item Name</th>
+                  <th>Category</th>
+                  <th>Location</th>
+                  <th>Date Lost</th>
+                  <th>Status</th>
+                  <th>Match Score</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">L-001</td>
+                  <td>
+                    <div class="td-main">Samsung Galaxy S23 (Black)</div>
+                    <div class="td-sub">Crack on back glass, screen lock enabled</div>
+                  </td>
+                  <td><span class="tag"><i class="ti ti-device-mobile" style="font-size:11px"></i> Electronics</span>
+                  </td>
+                  <td>Cafeteria</td>
+                  <td>Jun 05</td>
+                  <td><span class="badge badge-matched">Matched</span></td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <div class="progress">
+                        <div class="progress-bar" style="width:87%;background:var(--gold)"></div>
+                      </div>
+                      <span style="font-size:11px;color:var(--gold);font-weight:600">87%</span>
+                    </div>
+                  </td>
+                  <td><button class="btn btn-sm"
+                      onclick="openItemModal('Samsung Galaxy S23','Lost','Cafeteria','Jun 05, 2026','Electronics','Black','Crack on back glass','Matched')">View</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">L-002</td>
+                  <td>
+                    <div class="td-main">Blue Backpack + HP Laptop</div>
+                    <div class="td-sub">HP sticker on laptop, front pocket zipper broken</div>
+                  </td>
+                  <td><span class="tag"><i class="ti ti-backpack" style="font-size:11px"></i> Bags</span></td>
+                  <td>Library 2F</td>
+                  <td>Jun 07</td>
+                  <td><span class="badge badge-active">Active</span></td>
+                  <td><span style="color:var(--txt3);font-size:12px">No match yet</span></td>
+                  <td><button class="btn btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">L-003</td>
+                  <td>
+                    <div class="td-main">CSE 3rd Year Notes Bundle</div>
+                    <div class="td-sub">Name written on cover: "Tasnim Sara"</div>
+                  </td>
+                  <td><span class="tag"><i class="ti ti-file-text" style="font-size:11px"></i> Documents</span></td>
+                  <td>ECE Dept</td>
+                  <td>Jun 04</td>
+                  <td><span class="badge badge-active">Active</span></td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <div class="progress">
+                        <div class="progress-bar" style="width:42%"></div>
+                      </div>
+                      <span style="font-size:11px;color:var(--txt2)">42%</span>
+                    </div>
+                  </td>
+                  <td><button class="btn btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">L-004</td>
+                  <td>
+                    <div class="td-main">Black Rimmed Glasses</div>
+                    <div class="td-sub">Ray-Ban frame, left arm slightly bent</div>
+                  </td>
+                  <td><span class="tag"><i class="ti ti-eyeglass" style="font-size:11px"></i> Accessories</span></td>
+                  <td>Canteen</td>
+                  <td>Jun 03</td>
+                  <td><span class="badge badge-recovered">Recovered</span></td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <div class="progress">
+                        <div class="progress-bar" style="width:100%;background:var(--green)"></div>
+                      </div>
+                      <span style="font-size:11px;color:var(--green)">✓</span>
+                    </div>
+                  </td>
+                  <td><button class="btn btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">L-005</td>
+                  <td>
+                    <div class="td-main">Blue BIC Pen Case (10 pens)</div>
+                    <div class="td-sub">Pencil case with "KUET" written on it</div>
+                  </td>
+                  <td><span class="tag"><i class="ti ti-pencil" style="font-size:11px"></i> Stationery</span></td>
+                  <td>Room 302</td>
+                  <td>Jun 06</td>
+                  <td><span class="badge badge-active">Active</span></td>
+                  <td><span style="color:var(--txt3);font-size:12px">No match yet</span></td>
+                  <td><button class="btn btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">L-006</td>
+                  <td>
+                    <div class="td-main">Brown Leather Wallet</div>
+                    <div class="td-sub">Taka notes and student ID inside</div>
+                  </td>
+                  <td><span class="tag"><i class="ti ti-wallet" style="font-size:11px"></i> Accessories</span></td>
+                  <td>Main Gate</td>
+                  <td>Jun 08</td>
+                  <td><span class="badge badge-active">Active</span></td>
+                  <td><span style="color:var(--txt3);font-size:12px">No match yet</span></td>
+                  <td><button class="btn btn-sm">View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ══ FOUND ITEMS ══ -->
+        <div class="panel" id="panel-found">
+          <div class="section-head">
+            <div class="section-title">Found Items Registry</div>
+            <button class="btn btn-primary"
+              onclick="showPanel('report', document.querySelector('.nav-item:nth-child(9)'))"><i class="ti ti-plus"></i>
+              Report Found</button>
+          </div>
+          <div class="filter-row">
+            <div class="chip active" onclick="filterChips(this)">All</div>
+            <div class="chip" onclick="filterChips(this)">Unclaimed</div>
+            <div class="chip" onclick="filterChips(this)">Claimed</div>
+            <div class="chip" onclick="filterChips(this)">Returned</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Item Name</th>
+                  <th>Category</th>
+                  <th>Found At</th>
+                  <th>Date Found</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">F-001</td>
+                  <td>
+                    <div class="td-main">Black Android Phone</div>
+                    <div class="td-sub">Samsung, cracked screen, found near tables</div>
+                  </td>
+                  <td><span class="tag"><i class="ti ti-device-mobile" style="font-size:11px"></i> Electronics</span>
+                  </td>
+                  <td>Cafeteria</td>
+                  <td>Jun 05</td>
+                  <td><span class="badge badge-claimed">Claimed</span></td>
+                  <td><button class="btn btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">F-002</td>
+                  <td>
+                    <div class="td-main">Black Leather Wallet</div>
+                    <div class="td-sub">Contains student ID and some cash</div>
+                  </td>
+                  <td><span class="tag"><i class="ti ti-wallet" style="font-size:11px"></i> Accessories</span></td>
+                  <td>ECE Dept</td>
+                  <td>Jun 06</td>
+                  <td><span class="badge badge-active">Unclaimed</span></td>
+                  <td>
+                    <div style="display:flex;gap:6px">
+                      <button class="btn btn-sm btn-primary" onclick="openClaimModal()">Claim</button>
+                      <button class="btn btn-sm">View</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">F-003</td>
+                  <td>
+                    <div class="td-main">Student ID Card</div>
+                    <div class="td-sub">ID: 2001045, CSE Department</div>
+                  </td>
+                  <td><span class="tag"><i class="ti ti-id-badge" style="font-size:11px"></i> Documents</span></td>
+                  <td>Admin Block</td>
+                  <td>Jun 07</td>
+                  <td><span class="badge badge-returned">Returned</span></td>
+                  <td><button class="btn btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">F-004</td>
+                  <td>
+                    <div class="td-main">Set of 3 Keys (keychain)</div>
+                    <div class="td-sub">Red keychain, looks like room + bicycle keys</div>
+                  </td>
+                  <td><span class="tag"><i class="ti ti-key" style="font-size:11px"></i> Keys</span></td>
+                  <td>Library 1F</td>
+                  <td>Jun 07</td>
+                  <td><span class="badge badge-active">Unclaimed</span></td>
+                  <td>
+                    <div style="display:flex;gap:6px">
+                      <button class="btn btn-sm btn-primary" onclick="openClaimModal()">Claim</button>
+                      <button class="btn btn-sm">View</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">F-005</td>
+                  <td>
+                    <div class="td-main">Black Rimmed Glasses</div>
+                    <div class="td-sub">Ray-Ban style, left arm bent</div>
+                  </td>
+                  <td><span class="tag"><i class="ti ti-eyeglass" style="font-size:11px"></i> Accessories</span></td>
+                  <td>Canteen</td>
+                  <td>Jun 03</td>
+                  <td><span class="badge badge-returned">Returned</span></td>
+                  <td><button class="btn btn-sm">View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ══ SMART MATCHES ══ -->
+        <div class="panel" id="panel-matches">
+          <div class="section-head">
+            <div class="section-title">Smart Matches</div>
+            <div style="font-size:12px;color:var(--txt2)">Powered by Oracle PL/SQL scoring engine</div>
+          </div>
+          <div class="alert-banner cyan">
+            <i class="ti ti-cpu"></i>
+            <span>Matching considers <strong>category (35pts)</strong>, color (25pts), location (20pts), date proximity
+              (10pts), and keywords (10pts).</span>
+          </div>
+
+          <div class="match-card">
+            <div class="match-header">
+              <div style="font-size:12px;color:var(--txt2)">Match #M-001 · <span style="color:var(--txt3)">Jun 05,
+                  2026</span></div>
+              <div class="match-score-badge"><i class="ti ti-sparkles"></i> 87% Match</div>
+            </div>
+            <div class="match-body">
+              <div class="match-item">
+                <div class="match-item-label">Lost Item (L-001)</div>
+                <div class="match-item-name">Samsung Galaxy S23 (Black)</div>
+                <div class="match-item-loc"><i class="ti ti-map-pin" style="font-size:11px"></i> Near Cafeteria · Jun 05
+                </div>
+              </div>
+              <div class="match-arrow"><i class="ti ti-arrows-exchange"></i></div>
+              <div class="match-item">
+                <div class="match-item-label">Found Item (F-001)</div>
+                <div class="match-item-name">Black Android Phone</div>
+                <div class="match-item-loc"><i class="ti ti-map-pin" style="font-size:11px"></i> Cafeteria · Jun 05
+                </div>
+              </div>
+            </div>
+            <div class="match-footer">
+              <div class="match-reporters">Lost by: <strong>Rafiul Ahmed</strong> · Found by: <strong>Tasnim
+                  Sara</strong></div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-sm btn-success"><i class="ti ti-check"></i> Confirm</button>
+                <button class="btn btn-sm btn-danger"><i class="ti ti-x"></i> Dismiss</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="match-card">
+            <div class="match-header">
+              <div style="font-size:12px;color:var(--txt2)">Match #M-002 · <span style="color:var(--txt3)">Jun 04,
+                  2026</span></div>
+              <div class="match-score-badge"><i class="ti ti-sparkles"></i> 65% Match</div>
+            </div>
+            <div class="match-body">
+              <div class="match-item">
+                <div class="match-item-label">Lost Item (L-003)</div>
+                <div class="match-item-name">CSE 3rd Year Notes Bundle</div>
+                <div class="match-item-loc"><i class="ti ti-map-pin" style="font-size:11px"></i> ECE Dept · Jun 04</div>
+              </div>
+              <div class="match-arrow"><i class="ti ti-arrows-exchange"></i></div>
+              <div class="match-item">
+                <div class="match-item-label">Found Item (F-006)</div>
+                <div class="match-item-name">Academic Notes (bound)</div>
+                <div class="match-item-loc"><i class="ti ti-map-pin" style="font-size:11px"></i> ECE Dept · Jun 05</div>
+              </div>
+            </div>
+            <div class="match-footer">
+              <div class="match-reporters">Lost by: <strong>Tasnim Sara</strong> · Found by: <strong>Arif
+                  Hossain</strong></div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-sm btn-success"><i class="ti ti-check"></i> Confirm</button>
+                <button class="btn btn-sm btn-danger"><i class="ti ti-x"></i> Dismiss</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="match-card" style="opacity:0.7">
+            <div class="match-header">
+              <div style="font-size:12px;color:var(--txt2)">Match #M-003 · <span style="color:var(--txt3)">Jun 06,
+                  2026</span></div>
+              <div class="match-score-badge" style="opacity:0.7"><i class="ti ti-sparkles"></i> 52% Match</div>
+            </div>
+            <div class="match-body">
+              <div class="match-item">
+                <div class="match-item-label">Lost Item (L-006)</div>
+                <div class="match-item-name">Brown Leather Wallet</div>
+                <div class="match-item-loc"><i class="ti ti-map-pin" style="font-size:11px"></i> Main Gate · Jun 08
+                </div>
+              </div>
+              <div class="match-arrow"><i class="ti ti-arrows-exchange"></i></div>
+              <div class="match-item">
+                <div class="match-item-label">Found Item (F-002)</div>
+                <div class="match-item-name">Black Leather Wallet</div>
+                <div class="match-item-loc"><i class="ti ti-map-pin" style="font-size:11px"></i> ECE Dept · Jun 06</div>
+              </div>
+            </div>
+            <div class="match-footer">
+              <div class="match-reporters" style="color:var(--txt3)">Low confidence — different colors but same category
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-sm btn-success"><i class="ti ti-check"></i> Confirm</button>
+                <button class="btn btn-sm btn-danger"><i class="ti ti-x"></i> Dismiss</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ FILE A REPORT ══ -->
+        <div class="panel" id="panel-report">
+          <div class="success-toast" id="submit-toast">
+            <i class="ti ti-circle-check"></i>
+            <div><strong>Report submitted successfully!</strong> Our matching engine will scan for potential matches.
+              You'll be notified.</div>
+          </div>
+
+          <div class="form-tab-row">
+            <div class="form-tab active" id="tab-lost-report" onclick="switchReportTab('lost')"><i
+                class="ti ti-alert-triangle" style="font-size:14px"></i> Report Lost Item</div>
+            <div class="form-tab" id="tab-found-report" onclick="switchReportTab('found')"><i class="ti ti-package"
+                style="font-size:14px"></i> Report Found Item</div>
+          </div>
+
+          <!-- LOST FORM -->
+          <div id="form-lost" class="form-card">
+            <div class="form-section-title">Item Details</div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="form-label">Item Name *</label>
+                <input type="text" class="form-input-app" placeholder="e.g. Samsung Galaxy S23 Black">
+              </div>
+              <div class="form-field">
+                <label class="form-label">Category *</label>
+                <select class="form-input-app">
+                  <option value="">Select category</option>
+                  <option>Electronics</option>
+                  <option>Documents</option>
+                  <option>Accessories</option>
+                  <option>Bags</option>
+                  <option>Clothing</option>
+                  <option>Keys</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-label">Color</label>
+                <input type="text" class="form-input-app" placeholder="e.g. Black, Navy Blue">
+              </div>
+              <div class="form-field">
+                <label class="form-label">Date Lost *</label>
+                <input type="date" class="form-input-app">
+              </div>
+              <div class="form-field full">
+                <label class="form-label">Location Lost *</label>
+                <select class="form-input-app">
+                  <option value="">Select location</option>
+                  <option>Cafeteria / Canteen</option>
+                  <option>Library (1st Floor)</option>
+                  <option>Library (2nd Floor)</option>
+                  <option>Library (3rd Floor)</option>
+                  <option>ECE Department</option>
+                  <option>CSE Department</option>
+                  <option>EEE Department</option>
+                  <option>ME Department</option>
+                  <option>Admin Building</option>
+                  <option>Main Gate / Entry</option>
+                  <option>Sports Ground</option>
+                  <option>Residential Hall</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="form-field full">
+                <label class="form-label">Description</label>
+                <textarea class="form-input-app"
+                  placeholder="Describe the item in detail — model, condition, any markings…"></textarea>
+              </div>
+              <div class="form-field full">
+                <label class="form-label">Unique Identifying Marks</label>
+                <input type="text" class="form-input-app"
+                  placeholder="e.g. Sticker on back, name written, serial number">
+                <div class="form-hint">This helps verify ownership during claim verification.</div>
+              </div>
+            </div>
+            <div class="form-section-title" style="margin-top:20px">Contact Preference</div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="form-label">Contact Phone (optional)</label>
+                <input type="tel" class="form-input-app" placeholder="01XXXXXXXXX">
+              </div>
+              <div class="form-field">
+                <label class="form-label">Preferred Contact Method</label>
+                <select class="form-input-app">
+                  <option>Via Platform Notification</option>
+                  <option>Email</option>
+                  <option>Phone</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn">Cancel</button>
+              <button class="btn btn-primary" onclick="submitReport()"><i class="ti ti-send"></i> Submit Lost
+                Report</button>
+            </div>
+          </div>
+
+          <!-- FOUND FORM -->
+          <div id="form-found" class="form-card" style="display:none">
+            <div class="form-section-title">Found Item Details</div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="form-label">Item Name *</label>
+                <input type="text" class="form-input-app" placeholder="e.g. Black Android Phone">
+              </div>
+              <div class="form-field">
+                <label class="form-label">Category *</label>
+                <select class="form-input-app">
+                  <option value="">Select category</option>
+                  <option>Electronics</option>
+                  <option>Documents</option>
+                  <option>Accessories</option>
+                  <option>Bags</option>
+                  <option>Clothing</option>
+                  <option>Keys</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label class="form-label">Color / Appearance</label>
+                <input type="text" class="form-input-app" placeholder="e.g. Black, metallic silver">
+              </div>
+              <div class="form-field">
+                <label class="form-label">Date Found *</label>
+                <input type="date" class="form-input-app">
+              </div>
+              <div class="form-field full">
+                <label class="form-label">Location Found *</label>
+                <select class="form-input-app">
+                  <option value="">Select location</option>
+                  <option>Cafeteria / Canteen</option>
+                  <option>Library (1st Floor)</option>
+                  <option>Library (2nd Floor)</option>
+                  <option>ECE Department</option>
+                  <option>CSE Department</option>
+                  <option>Admin Building</option>
+                  <option>Main Gate / Entry</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="form-field full">
+                <label class="form-label">Description</label>
+                <textarea class="form-input-app"
+                  placeholder="Describe what you found — condition, contents visible, etc."></textarea>
+              </div>
+            </div>
+            <div class="alert-banner cyan" style="margin-top:16px">
+              <i class="ti ti-shield-check"></i>
+              <span>Our system will <strong>automatically match</strong> this found item against active lost reports
+                when you submit.</span>
+            </div>
+            <div class="form-actions">
+              <button class="btn">Cancel</button>
+              <button class="btn btn-gold" onclick="submitReport()"><i class="ti ti-send"></i> Submit Found
+                Report</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ MY CLAIMS ══ -->
+        <div class="panel" id="panel-claims">
+          <div class="section-head">
+            <div class="section-title">My Claims</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Claim #</th>
+                  <th>Item Claimed</th>
+                  <th>Proof Submitted</th>
+                  <th>Submitted</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">C-003</td>
+                  <td>
+                    <div class="td-main">Samsung Galaxy S23</div>
+                    <div class="td-sub">Found at Cafeteria · F-001</div>
+                  </td>
+                  <td><span class="tag">Description</span><span class="tag">Unique mark</span></td>
+                  <td>Jun 07</td>
+                  <td><span class="badge badge-pending">Pending</span></td>
+                  <td><button class="btn btn-sm">Details</button></td>
+                </tr>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">C-002</td>
+                  <td>
+                    <div class="td-main">Black Rimmed Glasses</div>
+                    <div class="td-sub">Found at Canteen · F-005</div>
+                  </td>
+                  <td><span class="tag">Description</span></td>
+                  <td>Jun 04</td>
+                  <td><span class="badge badge-approved">Approved</span></td>
+                  <td><button class="btn btn-sm">Details</button></td>
+                </tr>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">C-001</td>
+                  <td>
+                    <div class="td-main">Student ID Card</div>
+                    <div class="td-sub">Found at Admin Building · F-003</div>
+                  </td>
+                  <td><span class="tag">ID Proof</span></td>
+                  <td>Jun 07</td>
+                  <td><span class="badge badge-approved">Approved</span></td>
+                  <td><button class="btn btn-sm">Details</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ══ NOTIFICATIONS ══ -->
+        <div class="panel" id="panel-notifications">
+          <div class="section-head">
+            <div class="section-title">All Notifications</div>
+            <button class="btn btn-sm">Mark all read</button>
+          </div>
+          <div class="card">
+            <div class="notif-list">
+              <div class="notif-item">
+                <div class="notif-icon match"><i class="ti ti-sparkles"></i></div>
+                <div style="flex:1">
+                  <div class="notif-text">A <strong>87% match</strong> was found for your lost item: <strong>Samsung
+                      Galaxy S23</strong>. A similar phone was found at the Cafeteria.</div>
+                  <div class="notif-time">2 hours ago · <span style="color:var(--cyan)">View match →</span></div>
+                </div>
+                <div class="notif-unread"></div>
+              </div>
+              <div class="notif-item">
+                <div class="notif-icon claim"><i class="ti ti-circle-check"></i></div>
+                <div style="flex:1">
+                  <div class="notif-text">Your claim <strong>#C-002</strong> for <strong>Black Rimmed Glasses</strong>
+                    has been <strong style="color:var(--green)">APPROVED</strong>. Please collect your item from the
+                    Admin Office.</div>
+                  <div class="notif-time">Yesterday at 3:45 PM</div>
+                </div>
+                <div class="notif-unread"></div>
+              </div>
+              <div class="notif-item">
+                <div class="notif-icon info"><i class="ti ti-info-circle"></i></div>
+                <div style="flex:1">
+                  <div class="notif-text">A <strong>Student ID Card</strong> matching your lost report description was
+                    turned in at the Admin Building.</div>
+                  <div class="notif-time">Jun 06 at 10:12 AM</div>
+                </div>
+                <div class="notif-unread"></div>
+              </div>
+              <div class="notif-item" style="opacity:0.6">
+                <div class="notif-icon info"><i class="ti ti-bell"></i></div>
+                <div style="flex:1">
+                  <div class="notif-text">Your lost item report <strong>L-005 (BIC Pen Case)</strong> is now active.
+                    You'll be notified when a match is found.</div>
+                  <div class="notif-time">Jun 06 at 8:00 AM</div>
+                </div>
+              </div>
+              <div class="notif-item" style="opacity:0.6">
+                <div class="notif-icon claim"><i class="ti ti-circle-check"></i></div>
+                <div style="flex:1">
+                  <div class="notif-text">Your claim <strong>#C-001</strong> for <strong>Student ID Card</strong> has
+                    been <strong style="color:var(--green)">APPROVED</strong>.</div>
+                  <div class="notif-time">Jun 05 at 2:00 PM</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ ANALYTICS ══ -->
+        <div class="panel" id="panel-analytics">
+          <div class="stats-grid">
+            <div class="stat-card cyan">
+              <div class="stat-icon cyan"><i class="ti ti-percentage"></i></div>
+              <div class="stat-num">40%</div>
+              <div class="stat-label">Recovery Rate</div>
+              <div class="stat-delta" style="color:var(--cyan)">19 of 47 items</div>
+            </div>
+            <div class="stat-card purple">
+              <div class="stat-icon purple"><i class="ti ti-clock"></i></div>
+              <div class="stat-num">3.2d</div>
+              <div class="stat-label">Avg Resolution Time</div>
+              <div class="stat-delta" style="color:var(--purple)">Days to match</div>
+            </div>
+            <div class="stat-card green">
+              <div class="stat-icon green"><i class="ti ti-target"></i></div>
+              <div class="stat-num">91%</div>
+              <div class="stat-label">Match Accuracy</div>
+              <div class="stat-delta up">Confirmed matches</div>
+            </div>
+            <div class="stat-card gold">
+              <div class="stat-icon gold"><i class="ti ti-users"></i></div>
+              <div class="stat-num">128</div>
+              <div class="stat-label">Active Users</div>
+              <div class="stat-delta up">This month</div>
+            </div>
+          </div>
+
+          <div class="analytics-grid">
+            <div class="chart-card">
+              <div class="chart-title">Lost Items by Category</div>
+              <div class="bar-row">
+                <div class="bar-label">Electronics</div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width:72%;background:var(--cyan)"></div>
+                </div>
+                <div class="bar-val">18</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Documents</div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width:48%;background:var(--gold)"></div>
+                </div>
+                <div class="bar-val">12</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Accessories</div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width:36%;background:var(--purple)"></div>
+                </div>
+                <div class="bar-val">9</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Bags</div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width:28%;background:var(--green)"></div>
+                </div>
+                <div class="bar-val">7</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">Keys</div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width:12%;background:var(--red)"></div>
+                </div>
+                <div class="bar-val">3</div>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-title">Top Hotspot Locations</div>
+              <div class="hotspot-item">
+                <div class="hotspot-rank">01</div>
+                <div class="hotspot-name">Cafeteria / Canteen</div>
+                <div class="hotspot-count">14 items</div>
+              </div>
+              <div class="hotspot-item">
+                <div class="hotspot-rank">02</div>
+                <div class="hotspot-name">Library (All Floors)</div>
+                <div class="hotspot-count">11 items</div>
+              </div>
+              <div class="hotspot-item">
+                <div class="hotspot-rank">03</div>
+                <div class="hotspot-name">ECE Department</div>
+                <div class="hotspot-count">8 items</div>
+              </div>
+              <div class="hotspot-item">
+                <div class="hotspot-rank">04</div>
+                <div class="hotspot-name">Admin Building</div>
+                <div class="hotspot-count">6 items</div>
+              </div>
+              <div class="hotspot-item">
+                <div class="hotspot-rank">05</div>
+                <div class="hotspot-name">Main Gate / Entry</div>
+                <div class="hotspot-count">4 items</div>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-title">Monthly Recovery Rate</div>
+              <div style="display:flex;align-items:flex-end;gap:10px;height:100px;padding-top:10px">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                  <div
+                    style="flex:1;width:100%;background:var(--navy);border-radius:4px 4px 0 0;display:flex;align-items:flex-end">
+                    <div style="width:100%;height:35%;background:rgba(0,194,224,0.4);border-radius:4px 4px 0 0"></div>
+                  </div>
+                  <div style="font-size:10px;color:var(--txt3)">Mar</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                  <div
+                    style="flex:1;width:100%;background:var(--navy);border-radius:4px 4px 0 0;display:flex;align-items:flex-end">
+                    <div style="width:100%;height:50%;background:rgba(0,194,224,0.5);border-radius:4px 4px 0 0"></div>
+                  </div>
+                  <div style="font-size:10px;color:var(--txt3)">Apr</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                  <div
+                    style="flex:1;width:100%;background:var(--navy);border-radius:4px 4px 0 0;display:flex;align-items:flex-end">
+                    <div style="width:100%;height:62%;background:rgba(0,194,224,0.6);border-radius:4px 4px 0 0"></div>
+                  </div>
+                  <div style="font-size:10px;color:var(--txt3)">May</div>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                  <div
+                    style="flex:1;width:100%;background:var(--navy);border-radius:4px 4px 0 0;display:flex;align-items:flex-end">
+                    <div style="width:100%;height:40%;background:var(--cyan);border-radius:4px 4px 0 0"></div>
+                  </div>
+                  <div style="font-size:10px;color:var(--cyan)">Jun</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-card"
+              style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div class="chart-title" style="text-align:center">Overall Recovery</div>
+              <div class="arc-num">40%</div>
+              <div class="arc-label">of lost items recovered</div>
+              <div style="margin-top:14px;font-size:12px;color:var(--txt3);text-align:center">
+                Target: 60% by end of semester
+              </div>
+              <div
+                style="width:100%;height:6px;background:var(--navy);border-radius:3px;margin-top:12px;overflow:hidden">
+                <div
+                  style="width:67%;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:3px">
+                </div>
+              </div>
+              <div style="font-size:11px;color:var(--txt3);margin-top:6px">67% toward target</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ ADMIN VERIFY CLAIMS ══ -->
+        <div class="panel" id="panel-admin">
+          <div class="section-head">
+            <div class="section-title">Verify Claims</div>
+            <div style="font-size:12px;color:var(--txt2)">2 claims awaiting review</div>
+          </div>
+          <div class="alert-banner gold" style="margin-bottom:16px">
+            <i class="ti ti-shield-exclamation"></i>
+            <span>Approving a claim runs the <strong>approve_claim()</strong> Oracle procedure — updates claim, item
+              status, sends notification, and logs to audit trail.</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Claim #</th>
+                  <th>Claimant</th>
+                  <th>Item</th>
+                  <th>Proof Submitted</th>
+                  <th>Match Score</th>
+                  <th>Submitted</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody class="claim-row">
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">C-004</td>
+                  <td>
+                    <div class="td-main">Rafiul Ahmed</div>
+                    <div class="td-sub">2004001 · CSE</div>
+                  </td>
+                  <td>
+                    <div class="td-main">Samsung S23 (L-001)</div>
+                    <div class="td-sub">Found at Cafeteria</div>
+                  </td>
+                  <td class="proof-tags"><span>Description</span><span>Unique mark</span></td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <div class="progress" style="max-width:70px">
+                        <div class="progress-bar" style="width:87%;background:var(--gold)"></div>
+                      </div>
+                      <span style="font-size:11px;font-weight:600;color:var(--gold)">87%</span>
+                    </div>
+                  </td>
+                  <td>Jun 07</td>
+                  <td>
+                    <div style="display:flex;gap:6px">
+                      <button class="btn btn-sm btn-success" onclick="approveClaim(this,'C-004')"><i
+                          class="ti ti-check"></i> Approve</button>
+                      <button class="btn btn-sm btn-danger"><i class="ti ti-x"></i> Reject</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="color:var(--txt3);font-size:12px">C-005</td>
+                  <td>
+                    <div class="td-main">Tasnim Sara</div>
+                    <div class="td-sub">2002034 · EEE</div>
+                  </td>
+                  <td>
+                    <div class="td-main">Blue Backpack (L-002)</div>
+                    <div class="td-sub">Found at Library 2F</div>
+                  </td>
+                  <td class="proof-tags"><span>Description</span></td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <div class="progress" style="max-width:70px">
+                        <div class="progress-bar" style="width:55%"></div>
+                      </div>
+                      <span style="font-size:11px;color:var(--txt2)">55%</span>
+                    </div>
+                  </td>
+                  <td>Jun 08</td>
+                  <td>
+                    <div style="display:flex;gap:6px">
+                      <button class="btn btn-sm btn-success" onclick="approveClaim(this,'C-005')"><i
+                          class="ti ti-check"></i> Approve</button>
+                      <button class="btn btn-sm btn-danger"><i class="ti ti-x"></i> Reject</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ══ MY PROFILE ══ -->
+        <div class="panel" id="panel-profile">
+          <div class="profile-header">
+            <div class="profile-avatar">RA</div>
+            <div style="flex:1">
+              <div class="profile-name">Rafiul Ahmed</div>
+              <div class="profile-email">admin@kuet.ac.bd · Student ID: 2004001</div>
+              <div class="profile-badges" style="margin-top:10px">
+                <span class="badge badge-active">Admin</span>
+                <span class="badge badge-found">CSE Department</span>
+                <span class="tag">Member since Jan 2024</span>
+              </div>
+            </div>
+            <button class="btn"><i class="ti ti-edit"></i> Edit Profile</button>
+          </div>
+          <div class="profile-stat-grid" style="margin-bottom:20px">
+            <div class="profile-stat">
+              <div class="profile-stat-num">6</div>
+              <div class="profile-stat-label">Lost Reports</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-num">3</div>
+              <div class="profile-stat-label">Items Recovered</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-num">2</div>
+              <div class="profile-stat-label">Items Returned</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="form-section-title">Account Settings</div>
+            <div class="form-grid">
+              <div class="form-field">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-input-app" value="Rafiul Ahmed">
+              </div>
+              <div class="form-field">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input-app" value="admin@kuet.ac.bd" disabled style="opacity:0.6">
+              </div>
+              <div class="form-field">
+                <label class="form-label">Phone</label>
+                <input type="tel" class="form-input-app" placeholder="01XXXXXXXXX">
+              </div>
+              <div class="form-field">
+                <label class="form-label">Department</label>
+                <select class="form-input-app">
+                  <option selected>CSE</option>
+                  <option>EEE</option>
+                  <option>ECE</option>
+                  <option>ME</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary"><i class="ti ti-device-floppy"></i> Save Changes</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end .content -->
+    </div><!-- end .main -->
+  </div><!-- end #page-app -->
+
+  <!-- ══ ITEM DETAIL MODAL ══ -->
+  <div class="modal-overlay" id="modal-item">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-item-title">Item Details</div>
+        <div class="modal-close" onclick="closeModal('modal-item')"><i class="ti ti-x"></i></div>
+      </div>
+      <div class="modal-body">
+        <div id="modal-item-body"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('modal-item')">Close</button>
+        <button class="btn btn-primary" id="modal-claim-btn" onclick="openClaimModal();closeModal('modal-item')">Submit
+          Claim</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CLAIM MODAL ══ -->
+  <div class="modal-overlay" id="modal-claim">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Submit a Claim</div>
+        <div class="modal-close" onclick="closeModal('modal-claim')"><i class="ti ti-x"></i></div>
+      </div>
+      <div class="modal-body">
+        <div class="alert-banner cyan" style="margin-bottom:16px">
+          <i class="ti ti-info-circle"></i>
+          <span>Provide proof of ownership. Admin will verify and approve within 24 hours.</span>
+        </div>
+        <div class="form-field" style="margin-bottom:14px">
+          <label class="form-label">How can you prove ownership?</label>
+          <textarea class="form-input-app" rows="3"
+            placeholder="Describe the item in detail, including internal contents, serial numbers, or purchase history…"></textarea>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Unique Identifying Marks</label>
+          <input type="text" class="form-input-app" placeholder="Sticker, engraving, serial number, name…">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('modal-claim')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitClaim()"><i class="ti ti-send"></i> Submit Claim</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ═══════════════════ AUTH ═══════════════════ */
+    function authTab(tab) {
+      document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+      document.getElementById('form-signup').style.display = tab === 'signup' ? 'block' : 'none';
+      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+      document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+    }
+
+    function doLogin() {
+      const email = document.getElementById('login-email')?.value || '';
+      const isAdmin = email.includes('admin');
+      if (isAdmin) {
+        document.getElementById('sidebar-name').textContent = 'Rafiul Ahmed';
+        document.getElementById('sidebar-role').textContent = 'Admin';
+        document.getElementById('sidebar-avatar').textContent = 'RA';
+      } else {
+        document.getElementById('sidebar-name').textContent = 'Tasnim Sara';
+        document.getElementById('sidebar-role').textContent = 'Student';
+        document.getElementById('sidebar-avatar').textContent = 'TS';
+      }
+      document.getElementById('page-auth').classList.remove('active');
+      document.getElementById('page-app').classList.add('active');
+    }
+
+    function doLogout() {
+      document.getElementById('page-app').classList.remove('active');
+      document.getElementById('page-auth').classList.add('active');
+    }
+
+    /* ═══════════════════ NAVIGATION ═══════════════════ */
+    const titles = {
+      dashboard: 'Dashboard', lost: 'Lost Items', found: 'Found Items',
+      matches: 'Smart Matches', report: 'File a Report', claims: 'My Claims',
+      notifications: 'Notifications', analytics: 'Analytics',
+      admin: 'Verify Claims', profile: 'My Profile'
+    };
+
+    function showPanel(id, el) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const panel = document.getElementById('panel-' + id);
+      if (panel) panel.classList.add('active');
+      if (el) el.classList.add('active');
+      document.getElementById('topbar-title').textContent = titles[id] || id;
+    }
+
+    /* ═══════════════════ FILTER CHIPS ═══════════════════ */
+    function filterChips(el) {
+      el.closest('.filter-row, [style]').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+    }
+    document.querySelectorAll('.chip').forEach(c => {
+      c.addEventListener('click', function () {
+        // find siblings in same container
+        this.parentElement.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    /* ═══════════════════ REPORT FORM TABS ═══════════════════ */
+    function switchReportTab(tab) {
+      document.getElementById('form-lost').style.display = tab === 'lost' ? 'block' : 'none';
+      document.getElementById('form-found').style.display = tab === 'found' ? 'block' : 'none';
+      document.getElementById('tab-lost-report').classList.toggle('active', tab === 'lost');
+      document.getElementById('tab-found-report').classList.toggle('active', tab === 'found');
+    }
+
+    function submitReport() {
+      const toast = document.getElementById('submit-toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    /* ═══════════════════ MODALS ═══════════════════ */
+    function openItemModal(name, type, location, date, category, color, marks, status) {
+      document.getElementById('modal-item-title').textContent = name;
+      const isFound = type === 'Found';
+      document.getElementById('modal-claim-btn').style.display = isFound ? 'inline-flex' : 'none';
+      document.getElementById('modal-item-body').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <div style="width:50px;height:50px;border-radius:12px;background:${isFound ? 'rgba(34,208,122,0.12)' : 'rgba(240,82,79,0.12)'};display:flex;align-items:center;justify-content:center;font-size:24px">
+        ${isFound ? '📦' : '🔍'}
+      </div>
+      <div>
+        <div style="font-family:Syne,sans-serif;font-size:17px;font-weight:700">${name}</div>
+        <span class="badge badge-${isFound ? 'found' : 'lost'}" style="margin-top:4px">${type}</span>
+      </div>
+    </div>
+    <div class="detail-row"><div class="detail-key">Category</div><div class="detail-val">${category}</div></div>
+    <div class="detail-row"><div class="detail-key">Color</div><div class="detail-val">${color}</div></div>
+    <div class="detail-row"><div class="detail-key">Location</div><div class="detail-val">${location}</div></div>
+    <div class="detail-row"><div class="detail-key">Date</div><div class="detail-val">${date}</div></div>
+    <div class="detail-row"><div class="detail-key">Status</div><div class="detail-val">${status}</div></div>
+    <div class="detail-row"><div class="detail-key">Unique Marks</div><div class="detail-val">${marks}</div></div>
+  `;
+      document.getElementById('modal-item').classList.add('open');
+    }
+
+    function openClaimModal() {
+      document.getElementById('modal-claim').classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function submitClaim() {
+      closeModal('modal-claim');
+      const toast = document.createElement('div');
+      toast.className = 'alert-banner green';
+      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;max-width:360px;animation:fadeIn 0.3s ease';
+      toast.innerHTML = '<i class="ti ti-circle-check"></i><span><strong>Claim submitted!</strong> Admin will review within 24 hours.</span>';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    function approveClaim(btn, id) {
+      const row = btn.closest('tr');
+      row.querySelector('td:nth-child(5) .progress-bar').style.background = 'var(--green)';
+      btn.closest('td').innerHTML = '<span class="badge badge-approved"><i class="ti ti-check"></i> Approved</span>';
+      const toast = document.createElement('div');
+      toast.className = 'alert-banner green';
+      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;max-width:380px;animation:fadeIn 0.3s ease';
+      toast.innerHTML = `<i class="ti ti-circle-check"></i><span>Claim <strong>${id}</strong> approved. Oracle <code>approve_claim()</code> procedure executed.</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    /* Close modals on overlay click */
+    document.querySelectorAll('.modal-overlay').forEach(o => {
+      o.addEventListener('click', function (e) {
+        if (e.target === this) this.classList.remove('open');
+      });
+    });
+  </script>
+</body>
+
+</html>
