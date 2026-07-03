@@ -15,28 +15,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
         PASSWORD_DEFAULT
     );
 
-    $sql = "
-    INSERT INTO USERS
-    (
-        FULL_NAME,
-        STUDENT_ID,
-        EMAIL,
-        PASSWORD_HASH
-    )
-    VALUES
-    (
-        :name,
-        :student,
-        :email,
-        :hash
-    )";
+    $sql = "BEGIN SP_REGISTER_USER(:name, :student, :email, :hash); END;";
 
-    $stmt = oci_parse($conn,$sql);
+    $stmt = oci_parse($conn, $sql);
 
-    oci_bind_by_name($stmt,":name",$name);
-    oci_bind_by_name($stmt,":student",$student);
-    oci_bind_by_name($stmt,":email",$email);
-    oci_bind_by_name($stmt,":hash",$hash);
+    oci_bind_by_name($stmt, ":name", $name);
+    oci_bind_by_name($stmt, ":student", $student);
+    oci_bind_by_name($stmt, ":email", $email);
+    oci_bind_by_name($stmt, ":hash", $hash);
 
     if(oci_execute($stmt))
     {

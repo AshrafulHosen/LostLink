@@ -9,18 +9,18 @@ if($_SERVER['REQUEST_METHOD']=='POST')
     $email = trim($_POST['email']);
     $password = $_POST['password'];
 
-    $sql = "
-    SELECT *
-    FROM USERS
-    WHERE EMAIL=:email";
+    $sql = "BEGIN :cursor := FN_GET_USER_BY_EMAIL(:email); END;";
 
-    $stmt = oci_parse($conn,$sql);
+    $stmt = oci_parse($conn, $sql);
 
-    oci_bind_by_name($stmt,":email",$email);
+    $cursor = oci_new_cursor($conn);
+    oci_bind_by_name($stmt, ":cursor", $cursor, -1, OCI_B_CURSOR);
+    oci_bind_by_name($stmt, ":email", $email);
 
     oci_execute($stmt);
+    oci_execute($cursor);
 
-    $user = oci_fetch_assoc($stmt);
+    $user = oci_fetch_assoc($cursor);
 
     if($user &&
        password_verify(

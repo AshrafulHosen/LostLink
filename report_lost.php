@@ -18,32 +18,9 @@ $description = trim($_POST['description']);
 $location = trim($_POST['location']);
 $lostDate = $_POST['lost_date'];
 
-$sql = "
-INSERT INTO LOST_ITEMS
-(
-    USER_ID,
-    ITEM_NAME,
-    CATEGORY,
-    COLOR,
-    DESCRIPTION,
-    LOST_LOCATION,
-    LOST_DATE,
-    STATUS
-)
-VALUES
-(
-    :user_id,
-    :item_name,
-    :category,
-    :color,
-    :description,
-    :location,
-    TO_DATE(:lost_date,'YYYY-MM-DD'),
-    'ACTIVE'
-)
-";
+$sql = "BEGIN SP_REPORT_LOST_ITEM(:user_id, :item_name, :category, :color, :description, :location, TO_DATE(:lost_date,'YYYY-MM-DD')); END;";
 
-$stmt = oci_parse($conn,$sql);
+$stmt = oci_parse($conn, $sql);
 
 oci_bind_by_name($stmt,":user_id",$userId);
 oci_bind_by_name($stmt,":item_name",$itemName);
