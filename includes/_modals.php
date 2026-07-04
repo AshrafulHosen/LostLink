@@ -27,19 +27,22 @@
         <i class="ti ti-info-circle"></i>
         <span>Provide proof of ownership. Admin will verify and approve within 24 hours.</span>
       </div>
+      <form method="POST" action="submit_claim.php">
+        <input type="hidden" name="found_id" id="claim-found-id">
       <div class="form-field" style="margin-bottom:14px">
         <label class="form-label">How can you prove ownership?</label>
-        <textarea class="form-input-app" rows="3" placeholder="Describe the item in detail, including internal contents, serial numbers, or purchase history…"></textarea>
+        <textarea name="proof_text" class="form-input-app" rows="3" placeholder="Describe the item in detail, including internal contents, serial numbers, or purchase history…" required></textarea>
       </div>
       <div class="form-field">
         <label class="form-label">Unique Identifying Marks</label>
-        <input type="text" class="form-input-app" placeholder="Sticker, engraving, serial number, name…">
+        <input type="text" name="marks" class="form-input-app" placeholder="Sticker, engraving, serial number, name…">
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="closeModal('modal-claim')">Cancel</button>
-      <button class="btn btn-primary" onclick="submitClaim()"><i class="ti ti-send"></i> Submit Claim</button>
+      <button type="button" class="btn" onclick="closeModal('modal-claim')">Cancel</button>
+      <button type="submit" class="btn btn-primary"><i class="ti ti-send"></i> Submit Claim</button>
     </div>
+    </form>
   </div>
 </div>
 

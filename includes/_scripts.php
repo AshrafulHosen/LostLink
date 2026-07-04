@@ -42,8 +42,19 @@ function showPanel(id, el) {
   const panel = document.getElementById('panel-' + id);
   if (panel) panel.classList.add('active');
   if (el) el.classList.add('active');
+  else {
+      const navEl = document.querySelector(`[onclick*="showPanel('${id}'"]`);
+      if (navEl) navEl.classList.add('active');
+  }
   document.getElementById('topbar-title').textContent = titles[id] || id;
+  localStorage.setItem('activePanel', id);
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const activePanel = localStorage.getItem('activePanel') || 'dashboard';
+  const navEl = document.querySelector(`[onclick*="showPanel('${activePanel}'"]`);
+  showPanel(activePanel, navEl);
+});
 
 /* ═══════════════════ FILTER CHIPS ═══════════════════ */
 document.querySelectorAll('.chip').forEach(c => {
@@ -68,10 +79,14 @@ function submitReport() {
 }
 
 /* ═══════════════════ MODALS ═══════════════════ */
-function openItemModal(name, type, location, date, category, color, marks, status) {
+function openItemModal(id, name, type, location, date, category, color, marks, status) {
   document.getElementById('modal-item-title').textContent = name;
   const isFound = type === 'Found';
-  document.getElementById('modal-claim-btn').style.display = isFound ? 'inline-flex' : 'none';
+  const claimBtn = document.getElementById('modal-claim-btn');
+  claimBtn.style.display = isFound ? 'inline-flex' : 'none';
+  if(isFound) {
+      claimBtn.setAttribute('onclick', `openClaimModal(${id}); closeModal('modal-item');`);
+  }
   document.getElementById('modal-item-body').innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
       <div style="width:50px;height:50px;border-radius:12px;background:${isFound ? 'rgba(34,208,122,0.12)' : 'rgba(240,82,79,0.12)'};display:flex;align-items:center;justify-content:center;font-size:24px">
@@ -92,7 +107,10 @@ function openItemModal(name, type, location, date, category, color, marks, statu
   document.getElementById('modal-item').classList.add('open');
 }
 
-function openClaimModal() {
+function openClaimModal(foundId) {
+  if (foundId) {
+      document.getElementById('claim-found-id').value = foundId;
+  }
   document.getElementById('modal-claim').classList.add('open');
 }
 

@@ -51,14 +51,4 @@
     </div>
   </nav>
 
-  <div class="sidebar-bottom">
-    <div class="user-pill">
-      <div class="avatar" id="sidebar-avatar">RA</div>
-      <div>
-        <div class="user-name" id="sidebar-name">Rafiul Ahmed</div>
-        <div class="user-role" id="sidebar-role">Admin</div>
-      </div>
-      <div class="logout-btn" onclick="doLogout()" title="Sign out"><i class="ti ti-logout"></i></div>
-    </div>
-  </div>
 </aside>

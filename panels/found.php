@@ -122,6 +122,7 @@ oci_execute($stmt);
           <button
           class="btn btn-sm"
           onclick="openItemModal(
+          <?php echo $row['FOUND_ID']; ?>,
           '<?php echo addslashes($row['ITEM_NAME']); ?>',
           'Found',
           '<?php echo addslashes($row['FOUND_LOCATION']); ?>',

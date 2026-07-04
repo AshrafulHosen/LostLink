@@ -10,10 +10,14 @@ SELECT
     L.LOST_ID,
     L.ITEM_NAME AS LOST_NAME,
     L.LOST_LOCATION,
+    L.LOST_DATE,
+    L.COLOR AS LOST_COLOR,
 
     F.FOUND_ID,
     F.ITEM_NAME AS FOUND_NAME,
-    F.FOUND_LOCATION
+    F.FOUND_LOCATION,
+    F.FOUND_DATE,
+    F.COLOR AS FOUND_COLOR
 
 FROM MATCHES M
 
@@ -81,6 +85,16 @@ oci_execute($stmt);
           <i class="ti ti-map-pin"></i>
           <?php echo htmlspecialchars($row['LOST_LOCATION']); ?>
         </div>
+        
+        <div class="match-item-loc" style="margin-top: 4px; font-size: 12px; color: var(--txt2);">
+          <i class="ti ti-calendar"></i>
+          <?php echo !empty($row['LOST_DATE']) ? date('d M Y', strtotime($row['LOST_DATE'])) : 'N/A'; ?>
+        </div>
+        
+        <div class="match-item-loc" style="margin-top: 4px; font-size: 12px; color: var(--txt2);">
+          <i class="ti ti-palette"></i>
+          <?php echo htmlspecialchars($row['LOST_COLOR'] ? $row['LOST_COLOR'] : 'N/A'); ?>
+        </div>
 
       </div>
 
@@ -101,6 +115,16 @@ oci_execute($stmt);
         <div class="match-item-loc">
           <i class="ti ti-map-pin"></i>
           <?php echo htmlspecialchars($row['FOUND_LOCATION']); ?>
+        </div>
+        
+        <div class="match-item-loc" style="margin-top: 4px; font-size: 12px; color: var(--txt2);">
+          <i class="ti ti-calendar"></i>
+          <?php echo !empty($row['FOUND_DATE']) ? date('d M Y', strtotime($row['FOUND_DATE'])) : 'N/A'; ?>
+        </div>
+        
+        <div class="match-item-loc" style="margin-top: 4px; font-size: 12px; color: var(--txt2);">
+          <i class="ti ti-palette"></i>
+          <?php echo htmlspecialchars($row['FOUND_COLOR'] ? $row['FOUND_COLOR'] : 'N/A'); ?>
         </div>
 
       </div>
