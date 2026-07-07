@@ -250,16 +250,22 @@ oci_execute($claimCursor);
   </div>
 </div>
 
-<!-- ══ ADMIN VERIFY CLAIMS ══ -->
+<?php
+$adminClaimsSql = "BEGIN :cursor := FN_GET_PENDING_CLAIMS(); END;";
+$adminClaimsStmt = oci_parse($conn, $adminClaimsSql);
+$adminClaimsCursor = oci_new_cursor($conn);
+oci_bind_by_name($adminClaimsStmt, ":cursor", $adminClaimsCursor, -1, OCI_B_CURSOR);
+oci_execute($adminClaimsStmt);
+oci_execute($adminClaimsCursor);
+?>
+<!-- ══ ADMIN: VERIFY CLAIMS ══ -->
 <div class="panel" id="panel-admin">
   <div class="section-head">
-    <div class="section-title">Verify Claims</div>
-    <div style="font-size:12px;color:var(--txt2)">2 claims awaiting review</div>
+    <div class="section-title">Verify Pending Claims</div>
   </div>
   <div class="alert-banner gold" style="margin-bottom:16px">
     <i class="ti ti-shield-exclamation"></i>
-    <span>Approving a claim runs the <strong>approve_claim()</strong> Oracle procedure — updates claim, item status,
-      sends notification, and logs to audit trail.</span>
+    <span>Approving a claim runs the <strong>SP_PROCESS_CLAIM</strong> Oracle procedure — updates claim, item status, and sends a notification.</span>
   </div>
   <div class="table-wrap">
     <table>
@@ -275,62 +281,47 @@ oci_execute($claimCursor);
         </tr>
       </thead>
       <tbody class="claim-row">
+        <?php while($acRow = oci_fetch_assoc($adminClaimsCursor)): 
+            $matchScore = $acRow['MATCH_SCORE'];
+            $scoreText = $matchScore ? $matchScore . '%' : 'N/A';
+            $barWidth = $matchScore ? $matchScore . '%' : '0%';
+        ?>
         <tr>
-          <td style="color:var(--txt3);font-size:12px">C-004</td>
+          <td style="color:var(--txt3);font-size:12px">C-<?= htmlspecialchars($acRow['CLAIM_ID']) ?></td>
           <td>
-            <div class="td-main">Rafiul Ahmed</div>
-            <div class="td-sub">2004001 · CSE</div>
+            <div class="td-main"><?= htmlspecialchars($acRow['FULL_NAME']) ?></div>
+            <div class="td-sub"><?= htmlspecialchars($acRow['STUDENT_ID']) ?> · <?= htmlspecialchars($acRow['DEPARTMENT']) ?></div>
           </td>
           <td>
-            <div class="td-main">Samsung S23 (L-001)</div>
-            <div class="td-sub">Found at Cafeteria</div>
+            <div class="td-main"><?= htmlspecialchars($acRow['ITEM_NAME']) ?></div>
+            <div class="td-sub">Found at <?= htmlspecialchars($acRow['FOUND_LOCATION']) ?></div>
           </td>
-          <td class="proof-tags"><span>Description</span><span>Unique mark</span></td>
+          <td><span class="tag"><?= htmlspecialchars($acRow['PROOF_TEXT']) ?></span></td>
           <td>
             <div style="display:flex;align-items:center;gap:6px">
               <div class="progress" style="max-width:70px">
-                <div class="progress-bar" style="width:87%;background:var(--gold)"></div>
+                <div class="progress-bar" style="width:<?= $barWidth ?>;background:<?= $matchScore >= 75 ? 'var(--green)' : ($matchScore >= 50 ? 'var(--gold)' : 'var(--border2)') ?>"></div>
               </div>
-              <span style="font-size:11px;font-weight:600;color:var(--gold)">87%</span>
+              <span style="font-size:11px;font-weight:600;color:<?= $matchScore >= 75 ? 'var(--green)' : ($matchScore >= 50 ? 'var(--gold)' : 'var(--txt3)') ?>"><?= $scoreText ?></span>
             </div>
           </td>
-          <td>Jun 07</td>
+          <td><?= date('M d', strtotime($acRow['CREATED_AT'])) ?></td>
           <td>
             <div style="display:flex;gap:6px">
-              <button class="btn btn-sm btn-success" onclick="approveClaim(this,'C-004')"><i class="ti ti-check"></i>
-                Approve</button>
-              <button class="btn btn-sm btn-danger"><i class="ti ti-x"></i> Reject</button>
+              <form method="POST" action="process_claim.php" style="margin:0">
+                <input type="hidden" name="claim_id" value="<?= htmlspecialchars($acRow['CLAIM_ID']) ?>">
+                <input type="hidden" name="action" value="APPROVED">
+                <button type="submit" class="btn btn-sm btn-success"><i class="ti ti-check"></i> Approve</button>
+              </form>
+              <form method="POST" action="process_claim.php" style="margin:0">
+                <input type="hidden" name="claim_id" value="<?= htmlspecialchars($acRow['CLAIM_ID']) ?>">
+                <input type="hidden" name="action" value="REJECTED">
+                <button type="submit" class="btn btn-sm btn-danger"><i class="ti ti-x"></i> Reject</button>
+              </form>
             </div>
           </td>
         </tr>
-        <tr>
-          <td style="color:var(--txt3);font-size:12px">C-005</td>
-          <td>
-            <div class="td-main">Tasnim Sara</div>
-            <div class="td-sub">2002034 · EEE</div>
-          </td>
-          <td>
-            <div class="td-main">Blue Backpack (L-002)</div>
-            <div class="td-sub">Found at Library 2F</div>
-          </td>
-          <td class="proof-tags"><span>Description</span></td>
-          <td>
-            <div style="display:flex;align-items:center;gap:6px">
-              <div class="progress" style="max-width:70px">
-                <div class="progress-bar" style="width:55%"></div>
-              </div>
-              <span style="font-size:11px;color:var(--txt2)">55%</span>
-            </div>
-          </td>
-          <td>Jun 08</td>
-          <td>
-            <div style="display:flex;gap:6px">
-              <button class="btn btn-sm btn-success" onclick="approveClaim(this,'C-005')"><i class="ti ti-check"></i>
-                Approve</button>
-              <button class="btn btn-sm btn-danger"><i class="ti ti-x"></i> Reject</button>
-            </div>
-          </td>
-        </tr>
+        <?php endwhile; ?>
       </tbody>
     </table>
   </div>
