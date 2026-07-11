@@ -46,6 +46,15 @@ oci_execute($claimCursor);
   </div>
 </div>
 
+<?php
+$notifSql = "BEGIN :cursor := FN_GET_USER_NOTIFICATIONS(:user_id); END;";
+$notifStmt = oci_parse($conn, $notifSql);
+$notifCursor = oci_new_cursor($conn);
+oci_bind_by_name($notifStmt, ":cursor", $notifCursor, -1, OCI_B_CURSOR);
+oci_bind_by_name($notifStmt, ":user_id", $claimUserId);
+oci_execute($notifStmt);
+oci_execute($notifCursor);
+?>
 <!-- ══ NOTIFICATIONS ══ -->
 <div class="panel" id="panel-notifications">
   <div class="section-head">
@@ -54,51 +63,24 @@ oci_execute($claimCursor);
   </div>
   <div class="card">
     <div class="notif-list">
+      <?php while($notifRow = oci_fetch_assoc($notifCursor)): 
+          $msg = $notifRow['MESSAGE'];
+          $isMatch = stripos($msg, 'match') !== false;
+          $isApprove = stripos($msg, 'approved') !== false;
+          $iconClass = $isMatch ? 'match' : ($isApprove ? 'claim' : 'info');
+          $iconType = $isMatch ? 'ti-sparkles' : ($isApprove ? 'ti-circle-check' : 'ti-info-circle');
+      ?>
       <div class="notif-item">
-        <div class="notif-icon match"><i class="ti ti-sparkles"></i></div>
+        <div class="notif-icon <?= $iconClass ?>"><i class="ti <?= $iconType ?>"></i></div>
         <div style="flex:1">
-          <div class="notif-text">A <strong>87% match</strong> was found for your lost item: <strong>Samsung Galaxy
-              S23</strong>. A similar phone was found at the Cafeteria.</div>
-          <div class="notif-time">2 hours ago · <span style="color:var(--cyan)">View match →</span></div>
+          <div class="notif-text"><?= htmlspecialchars($msg) ?></div>
+          <div class="notif-time"><?= date('M d \a\t g:i A', strtotime($notifRow['CREATED_AT'])) ?></div>
         </div>
+        <?php if($notifRow['IS_READ'] == 'N'): ?>
         <div class="notif-unread"></div>
+        <?php endif; ?>
       </div>
-      <div class="notif-item">
-        <div class="notif-icon claim"><i class="ti ti-circle-check"></i></div>
-        <div style="flex:1">
-          <div class="notif-text">Your claim <strong>#C-002</strong> for <strong>Black Rimmed Glasses</strong> has been
-            <strong style="color:var(--green)">APPROVED</strong>. Please collect your item from the Admin Office.
-          </div>
-          <div class="notif-time">Yesterday at 3:45 PM</div>
-        </div>
-        <div class="notif-unread"></div>
-      </div>
-      <div class="notif-item">
-        <div class="notif-icon info"><i class="ti ti-info-circle"></i></div>
-        <div style="flex:1">
-          <div class="notif-text">A <strong>Student ID Card</strong> matching your lost report description was turned in
-            at the Admin Building.</div>
-          <div class="notif-time">Jun 06 at 10:12 AM</div>
-        </div>
-        <div class="notif-unread"></div>
-      </div>
-      <div class="notif-item" style="opacity:0.6">
-        <div class="notif-icon info"><i class="ti ti-bell"></i></div>
-        <div style="flex:1">
-          <div class="notif-text">Your lost item report <strong>L-005 (BIC Pen Case)</strong> is now active. You'll be
-            notified when a match is found.</div>
-          <div class="notif-time">Jun 06 at 8:00 AM</div>
-        </div>
-      </div>
-      <div class="notif-item" style="opacity:0.6">
-        <div class="notif-icon claim"><i class="ti ti-circle-check"></i></div>
-        <div style="flex:1">
-          <div class="notif-text">Your claim <strong>#C-001</strong> for <strong>Student ID Card</strong> has been
-            <strong style="color:var(--green)">APPROVED</strong>.
-          </div>
-          <div class="notif-time">Jun 05 at 2:00 PM</div>
-        </div>
-      </div>
+      <?php endwhile; ?>
     </div>
   </div>
 </div>
