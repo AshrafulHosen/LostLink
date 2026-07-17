@@ -35,11 +35,13 @@ CREATE OR REPLACE PROCEDURE SP_REPORT_LOST_ITEM (
     p_color IN VARCHAR2,
     p_description IN VARCHAR2,
     p_location IN VARCHAR2,
-    p_lost_date IN DATE
+    p_lost_date IN DATE,
+    p_out_lost_id OUT NUMBER
 ) AS
 BEGIN
     INSERT INTO LOST_ITEMS (USER_ID, ITEM_NAME, CATEGORY, COLOR, DESCRIPTION, LOST_LOCATION, LOST_DATE, STATUS)
-    VALUES (p_user_id, p_item_name, p_category, p_color, p_description, p_location, p_lost_date, 'ACTIVE');
+    VALUES (p_user_id, p_item_name, p_category, p_color, p_description, p_location, p_lost_date, 'ACTIVE')
+    RETURNING LOST_ID INTO p_out_lost_id;
     COMMIT;
 END;
 /
@@ -51,11 +53,13 @@ CREATE OR REPLACE PROCEDURE SP_REPORT_FOUND_ITEM (
     p_color IN VARCHAR2,
     p_description IN VARCHAR2,
     p_location IN VARCHAR2,
-    p_found_date IN DATE
+    p_found_date IN DATE,
+    p_out_found_id OUT NUMBER
 ) AS
 BEGIN
     INSERT INTO FOUND_ITEMS (USER_ID, ITEM_NAME, CATEGORY, COLOR, DESCRIPTION, FOUND_LOCATION, FOUND_DATE, STATUS)
-    VALUES (p_user_id, p_item_name, p_category, p_color, p_description, p_location, p_found_date, 'UNCLAIMED');
+    VALUES (p_user_id, p_item_name, p_category, p_color, p_description, p_location, p_found_date, 'UNCLAIMED')
+    RETURNING FOUND_ID INTO p_out_found_id;
     COMMIT;
 END;
 /
@@ -251,6 +255,7 @@ CREATE OR REPLACE PROCEDURE SP_DELETE_LOST_ITEM (
     p_user_id IN NUMBER
 ) AS
 BEGIN
+    DELETE FROM ITEM_IMAGES WHERE LOST_ID = p_lost_id;
     DELETE FROM MATCHES WHERE LOST_ID = p_lost_id;
     DELETE FROM LOST_ITEMS WHERE LOST_ID = p_lost_id AND USER_ID = p_user_id;
     COMMIT;
@@ -369,6 +374,91 @@ BEGIN
         ORDER BY ITEM_DATE DESC
     ) WHERE ROWNUM <= 6;
     RETURN v_cursor;
+END;
+/
+
+
+-- Messages and Images
+
+CREATE OR REPLACE PROCEDURE SP_ADD_MESSAGE (
+    p_match_id IN NUMBER,
+    p_sender_id IN NUMBER,
+    p_text IN VARCHAR2
+) AS
+    v_lost_user_id NUMBER;
+    v_found_user_id NUMBER;
+    v_sender_name VARCHAR2(100);
+BEGIN
+    INSERT INTO MESSAGES (MATCH_ID, SENDER_ID, MESSAGE_TEXT)
+    VALUES (p_match_id, p_sender_id, p_text);
+
+    SELECT L.USER_ID, F.USER_ID
+    INTO v_lost_user_id, v_found_user_id
+    FROM MATCHES M
+    JOIN LOST_ITEMS L ON M.LOST_ID = L.LOST_ID
+    JOIN FOUND_ITEMS F ON M.FOUND_ID = F.FOUND_ID
+    WHERE M.MATCH_ID = p_match_id;
+
+    SELECT FULL_NAME INTO v_sender_name FROM USERS WHERE USER_ID = p_sender_id;
+
+    -- Notify everyone who is part of this match OR has sent a message in it, EXCEPT the sender
+    FOR r IN (
+        SELECT DISTINCT u_id FROM (
+            SELECT v_lost_user_id AS u_id FROM DUAL
+            UNION
+            SELECT v_found_user_id AS u_id FROM DUAL
+            UNION
+            SELECT SENDER_ID AS u_id FROM MESSAGES WHERE MATCH_ID = p_match_id
+        ) WHERE u_id != p_sender_id
+    ) LOOP
+        INSERT INTO NOTIFICATIONS (USER_ID, MESSAGE)
+        VALUES (r.u_id, 'New message from ' || v_sender_name || ': ' || SUBSTR(p_text, 1, 100));
+    END LOOP;
+
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE FUNCTION FN_GET_MESSAGES (
+    p_match_id IN NUMBER
+) RETURN SYS_REFCURSOR AS
+    v_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN v_cursor FOR
+    SELECT M.MESSAGE_ID, M.SENDER_ID, U.FULL_NAME AS SENDER_NAME, M.MESSAGE_TEXT, M.CREATED_AT
+    FROM MESSAGES M
+    JOIN USERS U ON M.SENDER_ID = U.USER_ID
+    WHERE M.MATCH_ID = p_match_id
+    ORDER BY M.CREATED_AT ASC;
+    RETURN v_cursor;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE SP_ADD_ITEM_IMAGE (
+    p_lost_id IN NUMBER,
+    p_found_id IN NUMBER,
+    p_path IN VARCHAR2
+) AS
+BEGIN
+    INSERT INTO ITEM_IMAGES (LOST_ID, FOUND_ID, IMAGE_PATH)
+    VALUES (p_lost_id, p_found_id, p_path);
+    COMMIT;
+END;
+/
+
+CREATE OR REPLACE FUNCTION FN_GET_ITEM_IMAGE (
+    p_lost_id IN NUMBER,
+    p_found_id IN NUMBER
+) RETURN VARCHAR2 AS
+    v_path VARCHAR2(255);
+BEGIN
+    SELECT IMAGE_PATH INTO v_path 
+    FROM (SELECT IMAGE_PATH FROM ITEM_IMAGES WHERE (LOST_ID = p_lost_id AND p_lost_id IS NOT NULL) OR (FOUND_ID = p_found_id AND p_found_id IS NOT NULL)) 
+    WHERE ROWNUM <= 1;
+    RETURN v_path;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN NULL;
 END;
 /
 

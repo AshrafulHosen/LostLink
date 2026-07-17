@@ -11,7 +11,7 @@
   </div>
 
   <!-- LOST FORM -->
-  <form id="form-lost" class="form-card" method="POST" action="report_lost.php">
+  <form id="form-lost" class="form-card" method="POST" action="report_lost.php" enctype="multipart/form-data">
     <div class="form-section-title">Item Details</div>
     <div class="form-grid">
       <div class="form-field">
@@ -56,6 +56,11 @@
         <input type="text" class="form-input-app" placeholder="e.g. Sticker on back, name written, serial number">
         <div class="form-hint">This helps verify ownership during claim verification.</div>
       </div>
+      <div class="form-field full">
+        <label class="form-label">Upload Image</label>
+        <input type="file" class="form-input-app" name="item_image" accept="image/*">
+        <div class="form-hint">A clear picture greatly increases chances of recovery.</div>
+      </div>
     </div>
     <div class="form-section-title" style="margin-top:20px">Contact Preference</div>
     <div class="form-grid">
@@ -79,7 +84,7 @@
   </form>
 
   <!-- FOUND FORM -->
-  <form id="form-found" class="form-card" method="POST" action="report_found.php" style="display:none">
+  <form id="form-found" class="form-card" method="POST" action="report_found.php" enctype="multipart/form-data" style="display:none">
 
   <div class="form-section-title">Found Item Details</div>
 
@@ -152,6 +157,12 @@
       class="form-input-app"
       name="description"
       placeholder="Describe what you found — condition, contents visible, etc."></textarea>
+    </div>
+
+    <div class="form-field full">
+      <label class="form-label">Upload Image</label>
+      <input type="file" class="form-input-app" name="item_image" accept="image/*">
+      <div class="form-hint">A clear picture helps the owner identify their item.</div>
     </div>
 
   </div>

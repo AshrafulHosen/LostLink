@@ -114,3 +114,41 @@
   </div>
 
 </div>
+
+<!-- -- CHAT MODAL -- -->
+<div class="modal-overlay" id="modal-chat">
+  <div class="modal" style="display:flex;flex-direction:column;height:70vh;max-height:600px;">
+    <div class="modal-header">
+      <div class="modal-title">Secure Match Chat</div>
+      <div class="modal-close" onclick="closeModal('modal-chat')"><i class="ti ti-x"></i></div>
+    </div>
+    <div class="modal-body" id="chat-messages" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:16px;">
+      <!-- Messages will load here -->
+    </div>
+    <div class="modal-footer" style="padding:12px;border-top:1px solid var(--border);display:flex;gap:10px;">
+      <input type="hidden" id="chat-match-id" value="0">
+      <input type="text" id="chat-input" class="form-input-app" style="flex:1;" placeholder="Type a message...">
+      <button class="btn btn-primary" onclick="sendMessage()"><i class="ti ti-send"></i> Send</button>
+    </div>
+  </div>
+</div>
+<style>
+.chat-msg { max-width:75%; padding:10px 14px; border-radius:14px; font-size:13px; line-height:1.4; position:relative; }
+.chat-msg.mine { align-self:flex-end; background:var(--cyan); color:var(--navy); border-bottom-right-radius:4px; }
+.chat-msg.theirs { align-self:flex-start; background:var(--navy3); color:var(--txt); border:1px solid var(--border); border-bottom-left-radius:4px; }
+.chat-sender { font-size:10px; font-weight:700; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px; }
+.chat-msg.mine .chat-sender { color:rgba(0,0,0,0.5); }
+.chat-msg.theirs .chat-sender { color:var(--txt3); }
+</style>
+
+
+<!-- -- IMAGE PREVIEW MODAL -- -->
+<div class="modal-overlay" id="modal-image-preview">
+  <div class="modal" style="width: auto; max-width: 90vw; text-align: center; background: transparent; box-shadow: none;">
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+      <button class="btn" style="background: rgba(0,0,0,0.5); color: white; border: none;" onclick="closeModal('modal-image-preview')"><i class="ti ti-x"></i> Close</button>
+    </div>
+    <img id="preview-img-src" src="" style="max-width: 100%; max-height: 80vh; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+  </div>
+</div>
+

@@ -38,7 +38,20 @@ oci_execute($claimCursor);
           <td><span class="tag"><?= htmlspecialchars($claimRow['PROOF_TEXT']) ?></span></td>
           <td><?= date('M d', strtotime($claimRow['CREATED_AT'])) ?></td>
           <td><span class="badge badge-<?= $statusClass ?>"><?= ucfirst(strtolower($claimRow['STATUS'])) ?></span></td>
-          <td><button class="btn btn-sm">Details</button></td>
+          <td>
+            <button class="btn btn-sm" onclick="openItemModal(
+              <?= $claimRow['FOUND_ID'] ?>,
+              '<?= addslashes($claimRow['ITEM_NAME']) ?>',
+              'Found',
+              '<?= addslashes($claimRow['FOUND_LOCATION']) ?>',
+              '<?= addslashes($claimRow['FOUND_DATE']) ?>',
+              '<?= addslashes($claimRow['CATEGORY']) ?>',
+              '<?= addslashes($claimRow['COLOR']) ?>',
+              '<?= addslashes($claimRow['DESCRIPTION']) ?>',
+              '<?= addslashes($claimRow['STATUS']) ?>',
+              '<?= addslashes($claimRow['IMAGE_PATH'] ?? '') ?>'
+            )">Details</button>
+          </td>
         </tr>
         <?php endwhile; ?>
       </tbody>
@@ -86,6 +99,7 @@ oci_execute($notifCursor);
 </div>
 
 <?php
+if(isset($_SESSION['role']) && $_SESSION['role'] === 'ADMIN'):
 // Fetch Analytics Data
 $overallStatsSql = "BEGIN :cursor := FN_GET_OVERALL_STATS(); END;";
 $overallStatsStmt = oci_parse($conn, $overallStatsSql);
@@ -320,6 +334,7 @@ oci_execute($adminClaimsCursor);
     </table>
   </div>
 </div>
+<?php endif; ?>
 
 <?php
 $profUserId = $_SESSION['user_id'] ?? 0;

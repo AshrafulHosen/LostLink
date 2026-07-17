@@ -173,9 +173,32 @@ include 'includes/_head.php';
         Dashboard
       </div>
 
-      <div class="search-box">
-        <i class="ti ti-search"></i>
-        <input type="text" placeholder="Search items, locations, IDs…">
+      <div class="search-box" style="display:flex; gap:10px; align-items:center; background:transparent; border:none; padding:0; max-width:600px;">
+        <div style="position:relative; flex:1; display:flex; align-items:center; background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:0 12px; height:38px;">
+          <i class="ti ti-search" style="color:var(--txt3); margin-right:8px;"></i>
+          <input type="text" id="global-search" placeholder="Search items, locations, IDs…" style="border:none; background:transparent; outline:none; color:var(--txt1); width:100%;">
+        </div>
+        
+        <select id="filter-category" class="form-input-app" style="height:38px; padding:0 12px; width:auto; min-width:120px;">
+          <option value="">All Categories</option>
+          <option value="electronics">Electronics</option>
+          <option value="documents">Documents</option>
+          <option value="keys">Keys</option>
+          <option value="clothing">Clothing</option>
+          <option value="bags">Bags</option>
+          <option value="accessories">Accessories</option>
+          <option value="other">Other</option>
+        </select>
+
+        <select id="filter-status" class="form-input-app" style="height:38px; padding:0 12px; width:auto; min-width:110px;">
+          <option value="">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="unclaimed">Unclaimed</option>
+          <option value="matched">Matched</option>
+          <option value="claimed">Claimed</option>
+          <option value="recovered">Recovered</option>
+          <option value="returned">Returned</option>
+        </select>
       </div>
 
       <div class="topbar-notif"

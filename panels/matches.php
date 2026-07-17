@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/../includes/db.php';
+require_once __DIR__ . '/../includes/db.php';
 
 $sql = "
 SELECT
@@ -30,7 +30,7 @@ ON M.FOUND_ID = F.FOUND_ID
 ORDER BY M.MATCH_SCORE DESC
 ";
 
-$stmt = oci_parse($conn,$sql);
+$stmt = oci_parse($conn, $sql);
 oci_execute($stmt);
 
 ?>
@@ -52,86 +52,96 @@ oci_execute($stmt);
     </span>
   </div>
 
-  <?php while($row = oci_fetch_assoc($stmt)): ?>
+  <?php while ($row = oci_fetch_assoc($stmt)): ?>
 
-  <div class="match-card">
+    <div class="match-card">
 
-    <div class="match-header">
+      <div class="match-header">
 
-      <div style="font-size:12px;color:var(--txt2)">
-        Match #M-<?php echo $row['MATCH_ID']; ?>
+        <div style="font-size:12px;color:var(--txt2)">
+          Match #M-<?php echo $row['MATCH_ID']; ?>
+        </div>
+
+        <div class="match-score-badge">
+          <i class="ti ti-sparkles"></i>
+          <?php echo round($row['MATCH_SCORE']); ?>% Match
+        </div>
+
       </div>
 
-      <div class="match-score-badge">
-        <i class="ti ti-sparkles"></i>
-        <?php echo round($row['MATCH_SCORE']); ?>% Match
+      <div class="match-body">
+
+        <div class="match-item">
+
+          <div class="match-item-label">
+            Lost Item (L-<?php echo $row['LOST_ID']; ?>)
+          </div>
+
+          <div class="match-item-name">
+            <?php echo htmlspecialchars($row['LOST_NAME']); ?>
+          </div>
+
+          <div class="match-item-loc">
+            <i class="ti ti-map-pin"></i>
+            <?php echo htmlspecialchars($row['LOST_LOCATION']); ?>
+          </div>
+
+          <div class="match-item-loc" style="margin-top: 4px; font-size: 12px; color: var(--txt2);">
+            <i class="ti ti-calendar"></i>
+            <?php echo !empty($row['LOST_DATE']) ? date('d M Y', strtotime($row['LOST_DATE'])) : 'N/A'; ?>
+          </div>
+
+          <div class="match-item-loc" style="margin-top: 4px; font-size: 12px; color: var(--txt2);">
+            <i class="ti ti-palette"></i>
+            <?php echo htmlspecialchars($row['LOST_COLOR'] ? $row['LOST_COLOR'] : 'N/A'); ?>
+          </div>
+
+        </div>
+
+        <div class="match-arrow">
+          <i class="ti ti-arrows-exchange"></i>
+        </div>
+
+        <div class="match-item">
+
+          <div class="match-item-label">
+            Found Item (F-<?php echo $row['FOUND_ID']; ?>)
+          </div>
+
+          <div class="match-item-name">
+            <?php echo htmlspecialchars($row['FOUND_NAME']); ?>
+          </div>
+
+          <div class="match-item-loc">
+            <i class="ti ti-map-pin"></i>
+            <?php echo htmlspecialchars($row['FOUND_LOCATION']); ?>
+          </div>
+
+          <div class="match-item-loc" style="margin-top: 4px; font-size: 12px; color: var(--txt2);">
+            <i class="ti ti-calendar"></i>
+            <?php echo !empty($row['FOUND_DATE']) ? date('d M Y', strtotime($row['FOUND_DATE'])) : 'N/A'; ?>
+          </div>
+
+          <div class="match-item-loc" style="margin-top: 4px; font-size: 12px; color: var(--txt2);">
+            <i class="ti ti-palette"></i>
+            <?php echo htmlspecialchars($row['FOUND_COLOR'] ? $row['FOUND_COLOR'] : 'N/A'); ?>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="match-footer"
+        style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:11px;color:var(--txt3);">
+          Matched automatically based on item attributes.
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openChatModal(<?= $row['MATCH_ID'] ?>)">
+          <i class="ti ti-messages"></i> Chat Now
+        </button>
       </div>
 
     </div>
-
-    <div class="match-body">
-
-      <div class="match-item">
-
-        <div class="match-item-label">
-          Lost Item (L-<?php echo $row['LOST_ID']; ?>)
-        </div>
-
-        <div class="match-item-name">
-          <?php echo htmlspecialchars($row['LOST_NAME']); ?>
-        </div>
-
-        <div class="match-item-loc">
-          <i class="ti ti-map-pin"></i>
-          <?php echo htmlspecialchars($row['LOST_LOCATION']); ?>
-        </div>
-        
-        <div class="match-item-loc" style="margin-top: 4px; font-size: 12px; color: var(--txt2);">
-          <i class="ti ti-calendar"></i>
-          <?php echo !empty($row['LOST_DATE']) ? date('d M Y', strtotime($row['LOST_DATE'])) : 'N/A'; ?>
-        </div>
-        
-        <div class="match-item-loc" style="margin-top: 4px; font-size: 12px; color: var(--txt2);">
-          <i class="ti ti-palette"></i>
-          <?php echo htmlspecialchars($row['LOST_COLOR'] ? $row['LOST_COLOR'] : 'N/A'); ?>
-        </div>
-
-      </div>
-
-      <div class="match-arrow">
-        <i class="ti ti-arrows-exchange"></i>
-      </div>
-
-      <div class="match-item">
-
-        <div class="match-item-label">
-          Found Item (F-<?php echo $row['FOUND_ID']; ?>)
-        </div>
-
-        <div class="match-item-name">
-          <?php echo htmlspecialchars($row['FOUND_NAME']); ?>
-        </div>
-
-        <div class="match-item-loc">
-          <i class="ti ti-map-pin"></i>
-          <?php echo htmlspecialchars($row['FOUND_LOCATION']); ?>
-        </div>
-        
-        <div class="match-item-loc" style="margin-top: 4px; font-size: 12px; color: var(--txt2);">
-          <i class="ti ti-calendar"></i>
-          <?php echo !empty($row['FOUND_DATE']) ? date('d M Y', strtotime($row['FOUND_DATE'])) : 'N/A'; ?>
-        </div>
-        
-        <div class="match-item-loc" style="margin-top: 4px; font-size: 12px; color: var(--txt2);">
-          <i class="ti ti-palette"></i>
-          <?php echo htmlspecialchars($row['FOUND_COLOR'] ? $row['FOUND_COLOR'] : 'N/A'); ?>
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
 
   <?php endwhile; ?>
 

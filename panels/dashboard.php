@@ -8,45 +8,36 @@ $foundCount = 0;
 $claimCount = 0;
 $recoveredCount = 0;
 
-/* LOST ITEMS */
-$sql = "SELECT COUNT(*) TOTAL FROM LOST_ITEMS";
-$stmt = oci_parse($conn,$sql);
-oci_execute($stmt);
+$userId = $_SESSION['user_id'] ?? 0;
+$isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'ADMIN';
 
-if($row = oci_fetch_assoc($stmt))
-{
-    $lostCount = $row['TOTAL'];
-}
+/* LOST ITEMS */
+$sql = "SELECT COUNT(*) TOTAL FROM LOST_ITEMS" . ($isAdmin ? "" : " WHERE USER_ID = :user_id");
+$stmt = oci_parse($conn, $sql);
+if (!$isAdmin) oci_bind_by_name($stmt, ":user_id", $userId);
+oci_execute($stmt);
+if($row = oci_fetch_assoc($stmt)) $lostCount = $row['TOTAL'];
 
 /* FOUND ITEMS */
-$sql = "SELECT COUNT(*) TOTAL FROM FOUND_ITEMS";
-$stmt = oci_parse($conn,$sql);
+$sql = "SELECT COUNT(*) TOTAL FROM FOUND_ITEMS" . ($isAdmin ? "" : " WHERE USER_ID = :user_id");
+$stmt = oci_parse($conn, $sql);
+if (!$isAdmin) oci_bind_by_name($stmt, ":user_id", $userId);
 oci_execute($stmt);
+if($row = oci_fetch_assoc($stmt)) $foundCount = $row['TOTAL'];
 
-if($row = oci_fetch_assoc($stmt))
-{
-    $foundCount = $row['TOTAL'];
-}
-
-/* CLAIMS */
-$sql = "SELECT COUNT(*) TOTAL FROM CLAIMS WHERE STATUS='PENDING'";
-$stmt = oci_parse($conn,$sql);
+/* CLAIMS (PENDING) */
+$sql = "SELECT COUNT(*) TOTAL FROM CLAIMS WHERE STATUS='PENDING'" . ($isAdmin ? "" : " AND CLAIMANT_ID = :user_id");
+$stmt = oci_parse($conn, $sql);
+if (!$isAdmin) oci_bind_by_name($stmt, ":user_id", $userId);
 oci_execute($stmt);
-
-if($row = oci_fetch_assoc($stmt))
-{
-    $claimCount = $row['TOTAL'];
-}
+if($row = oci_fetch_assoc($stmt)) $claimCount = $row['TOTAL'];
 
 /* RECOVERED */
-$sql = "SELECT COUNT(*) TOTAL FROM CLAIMS WHERE STATUS='APPROVED'";
-$stmt = oci_parse($conn,$sql);
+$sql = "SELECT COUNT(*) TOTAL FROM CLAIMS WHERE STATUS='APPROVED'" . ($isAdmin ? "" : " AND CLAIMANT_ID = :user_id");
+$stmt = oci_parse($conn, $sql);
+if (!$isAdmin) oci_bind_by_name($stmt, ":user_id", $userId);
 oci_execute($stmt);
-
-if($row = oci_fetch_assoc($stmt))
-{
-    $recoveredCount = $row['TOTAL'];
-}
+if($row = oci_fetch_assoc($stmt)) $recoveredCount = $row['TOTAL'];
 ?>
 
 <?php

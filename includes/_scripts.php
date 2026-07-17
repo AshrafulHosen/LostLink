@@ -79,7 +79,7 @@ function submitReport() {
 }
 
 /* ═══════════════════ MODALS ═══════════════════ */
-function openItemModal(id, name, type, location, date, category, color, marks, status) {
+function openItemModal(id, name, type, location, date, category, color, marks, status, imgPath) {
   document.getElementById('modal-item-title').textContent = name;
   const isFound = type === 'Found';
   const claimBtn = document.getElementById('modal-claim-btn');
@@ -87,7 +87,13 @@ function openItemModal(id, name, type, location, date, category, color, marks, s
   if(isFound) {
       claimBtn.setAttribute('onclick', `openClaimModal(${id}); closeModal('modal-item');`);
   }
-  document.getElementById('modal-item-body').innerHTML = `
+  
+  let imgHtml = '';
+  if (imgPath && imgPath !== 'null' && imgPath !== '') {
+      imgHtml = `<div style="text-align:center; margin-bottom:15px;"><img src="${imgPath}" style="max-width:100%; border-radius:12px; max-height:200px; object-fit:cover;"></div>`;
+  }
+  
+  document.getElementById('modal-item-body').innerHTML = imgHtml + `
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
       <div style="width:50px;height:50px;border-radius:12px;background:${isFound ? 'rgba(34,208,122,0.12)' : 'rgba(240,82,79,0.12)'};display:flex;align-items:center;justify-content:center;font-size:24px">
         ${isFound ? '📦' : '🔍'}
@@ -175,3 +181,140 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
 </script>
 </body>
 </html>
+
+<script>
+function openChatModal(matchId) {
+    document.getElementById("chat-match-id").value = matchId;
+    document.getElementById("chat-messages").innerHTML = "<div style='text-align:center;color:var(--txt3)'>Loading messages...</div>";
+    document.getElementById("modal-chat").classList.add("open");
+    fetchMessages(matchId);
+}
+
+function fetchMessages(matchId) {
+    const formData = new FormData();
+    formData.append("action", "fetch");
+    formData.append("match_id", matchId);
+    
+    fetch("chat_handler.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "success") {
+            const container = document.getElementById("chat-messages");
+            container.innerHTML = "";
+            if(data.messages.length === 0) {
+                container.innerHTML = "<div style='text-align:center;color:var(--txt3);padding-top:20px'>No messages yet. Say hello!</div>";
+            } else {
+                data.messages.forEach(msg => {
+                    const cls = msg.IS_MINE ? "chat-msg mine" : "chat-msg theirs";
+                    const sender = msg.IS_MINE ? "You" : msg.SENDER_NAME;
+                    container.innerHTML += `
+                        <div class="${cls}">
+                            <div class="chat-sender">${sender}</div>
+                            <div>${msg.MESSAGE_TEXT}</div>
+                        </div>
+                    `;
+                });
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+    });
+}
+
+function sendMessage() {
+    const matchId = document.getElementById("chat-match-id").value;
+    const input = document.getElementById("chat-input");
+    const text = input.value.trim();
+    if(text === "") return;
+    
+    const formData = new FormData();
+    formData.append("action", "send");
+    formData.append("match_id", matchId);
+    formData.append("message", text);
+    
+    fetch("chat_handler.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "success") {
+            input.value = "";
+            fetchMessages(matchId);
+        }
+    });
+}
+</script>
+
+
+<script>
+function viewImage(imgPath) {
+    document.getElementById("preview-img-src").src = imgPath;
+    document.getElementById("modal-image-preview").classList.add("open");
+}
+</script>
+
+
+<script>
+/* ------------------- SEARCH AND FILTER ------------------- */
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("global-search");
+  const filterCat = document.getElementById("filter-category");
+  const filterStatus = document.getElementById("filter-status");
+
+  function handleSearch() {
+    const query = searchInput.value.toLowerCase();
+    const cat = filterCat.value.toLowerCase();
+    const stat = filterStatus.value.toLowerCase();
+
+    // Find the currently active panel
+    const activePanel = document.querySelector(".panel.active");
+    if(!activePanel) return;
+
+    // Filter table rows (Lost, Found, Admin Claims, etc.)
+    const rows = activePanel.querySelectorAll("table tbody tr");
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      const rowCat = row.getAttribute("data-category") || "";
+      const rowStat = row.getAttribute("data-status") || "";
+      
+      const matchesSearch = text.includes(query);
+      const matchesCat = (cat === "" || rowCat === cat);
+      const matchesStat = (stat === "" || rowStat === stat);
+
+      if (matchesSearch && matchesCat && matchesStat) {
+        row.style.display = "";
+      } else {
+        row.style.display = "none";
+      }
+    });
+
+    // Filter matches cards if we are in the matches panel
+    const matches = activePanel.querySelectorAll(".match-card");
+    matches.forEach(card => {
+      const text = card.textContent.toLowerCase();
+      const matchesSearch = text.includes(query);
+      
+      if (matchesSearch) {
+        card.style.display = "";
+      } else {
+        card.style.display = "none";
+      }
+    });
+  }
+
+  if (searchInput) searchInput.addEventListener("input", handleSearch);
+  if (filterCat) filterCat.addEventListener("change", handleSearch);
+  if (filterStatus) filterStatus.addEventListener("change", handleSearch);
+
+  // Hook into panel switching so we re-apply filters when switching tabs
+  const originalShowPanel = window.showPanel;
+  window.showPanel = function(id, el) {
+    originalShowPanel(id, el);
+    handleSearch();
+  };
+});
+</script>
+

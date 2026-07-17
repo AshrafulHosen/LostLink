@@ -1,0 +1,1 @@
+<?php include "includes/db.php"; $s = oci_parse($conn, "SELECT TEXT FROM USER_SOURCE WHERE NAME = 'FN_GET_USER_NOTIFICATIONS' ORDER BY LINE"); oci_execute($s); while($r=oci_fetch_assoc($s)) { echo $r["TEXT"]; } ?>

@@ -1,3 +1,28 @@
+<?php
+require_once __DIR__ . '/db.php';
+
+$lost_count = 0;
+$found_count = 0;
+$matches_count = 0;
+
+$stmt = oci_parse($conn, "SELECT COUNT(*) AS CNT FROM LOST_ITEMS");
+oci_execute($stmt);
+if($row = oci_fetch_assoc($stmt)) {
+    $lost_count = $row['CNT'];
+}
+
+$stmt = oci_parse($conn, "SELECT COUNT(*) AS CNT FROM FOUND_ITEMS");
+oci_execute($stmt);
+if($row = oci_fetch_assoc($stmt)) {
+    $found_count = $row['CNT'];
+}
+
+$stmt = oci_parse($conn, "SELECT COUNT(*) AS CNT FROM MATCHES");
+oci_execute($stmt);
+if($row = oci_fetch_assoc($stmt)) {
+    $matches_count = $row['CNT'];
+}
+?>
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-wrap">
@@ -17,15 +42,15 @@
     <div class="nav-section">Items</div>
     <div class="nav-item" onclick="showPanel('lost',this)">
       <i class="ti ti-alert-triangle"></i> Lost Items
-      <span class="nav-badge red">12</span>
+      <span class="nav-badge red"><?php echo $lost_count; ?></span>
     </div>
     <div class="nav-item" onclick="showPanel('found',this)">
       <i class="ti ti-package"></i> Found Items
-      <span class="nav-badge">8</span>
+      <span class="nav-badge"><?php echo $found_count; ?></span>
     </div>
     <div class="nav-item" onclick="showPanel('matches',this)">
       <i class="ti ti-link"></i> Smart Matches
-      <span class="nav-badge" style="background:var(--gold)">5</span>
+      <span class="nav-badge" style="background:var(--gold)"><?php echo $matches_count; ?></span>
     </div>
     <div class="nav-section">Actions</div>
     <div class="nav-item" onclick="showPanel('report',this)">
@@ -38,6 +63,7 @@
       <i class="ti ti-bell"></i> Notifications
       <span class="nav-badge blue">3</span>
     </div>
+    <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'ADMIN'): ?>
     <div class="nav-section">Admin</div>
     <div class="nav-item" onclick="showPanel('analytics',this)">
       <i class="ti ti-chart-pie-2"></i> Analytics
@@ -46,6 +72,7 @@
       <i class="ti ti-shield-check"></i> Verify Claims
       <span class="nav-badge red">2</span>
     </div>
+    <?php endif; ?>
     <div class="nav-item" onclick="showPanel('profile',this)">
       <i class="ti ti-user-circle"></i> My Profile
     </div>
