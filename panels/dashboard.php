@@ -49,31 +49,35 @@ if($row = oci_fetch_assoc($stmt))
 }
 ?>
 
+<?php
+$recoveryRate = ($lostCount > 0) ? round(($recoveredCount / $lostCount) * 100) : 0;
+?>
+
 <div class="panel active" id="panel-dashboard">
   <div class="stats-grid">
     <div class="stat-card red">
       <div class="stat-icon red"><i class="ti ti-alert-triangle"></i></div>
       <div class="stat-num"><?= $lostCount ?></div>
       <div class="stat-label">Total Lost</div>
-      <div class="stat-delta up"><i class="ti ti-arrow-up" style="font-size:10px"></i> 12 this month</div>
+      <div class="stat-delta up"><i class="ti ti-arrow-up" style="font-size:10px"></i> All time</div>
     </div>
     <div class="stat-card green">
       <div class="stat-icon green"><i class="ti ti-package"></i></div>
       <div class="stat-num"><?= $foundCount ?></div>
       <div class="stat-label">Total Found</div>
-      <div class="stat-delta up"><i class="ti ti-arrow-up" style="font-size:10px"></i> 8 this month</div>
+      <div class="stat-delta up"><i class="ti ti-arrow-up" style="font-size:10px"></i> All time</div>
     </div>
     <div class="stat-card cyan">
       <div class="stat-icon cyan"><i class="ti ti-circle-check"></i></div>
       <div class="stat-num"><?= $recoveredCount ?></div>
       <div class="stat-label">Recovered</div>
-      <div class="stat-delta" style="color:var(--cyan)">40% recovery rate</div>
+      <div class="stat-delta" style="color:var(--cyan)"><?= $recoveryRate ?>% recovery rate</div>
     </div>
     <div class="stat-card gold">
       <div class="stat-icon gold"><i class="ti ti-clock"></i></div>
       <div class="stat-num"><?= $claimCount ?></div>
       <div class="stat-label">Pending Claims</div>
-      <div class="stat-delta" style="color:var(--gold)">Needs admin review</div>
+      <div class="stat-delta" style="color:var(--gold)">Needs review</div>
     </div>
   </div>
 
@@ -87,100 +91,80 @@ if($row = oci_fetch_assoc($stmt))
     <div>
       <div class="section-head">
         <div class="section-title">Recent Activity</div>
-        <div class="filter-row" style="margin:0;gap:6px">
-          <div class="chip active">All</div>
-          <div class="chip">Lost</div>
-          <div class="chip">Found</div>
-        </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <div class="item-card has-match" onclick="openItemModal('Samsung Galaxy S23','Lost','Near KUET Cafeteria','Jun 05, 2026','Electronics','Black','Crack on back glass','Matched')">
+        <?php
+          $recentSql = "BEGIN :cursor := FN_GET_RECENT_ACTIVITY(); END;";
+          $recentStmt = oci_parse($conn, $recentSql);
+          $recentCursor = oci_new_cursor($conn);
+          oci_bind_by_name($recentStmt, ":cursor", $recentCursor, -1, OCI_B_CURSOR);
+          oci_execute($recentStmt);
+          oci_execute($recentCursor);
+          
+          while($recentRow = oci_fetch_assoc($recentCursor)):
+              $isLost = ($recentRow['ITEM_TYPE'] == 'LOST');
+              $iconBase = $isLost ? 'lost' : 'found';
+              $iconName = 'ti-box';
+              if(stripos($recentRow['CATEGORY'], 'electronics') !== false) $iconName = 'ti-device-mobile';
+              else if(stripos($recentRow['CATEGORY'], 'documents') !== false) $iconName = 'ti-id-badge';
+              else if(stripos($recentRow['CATEGORY'], 'bags') !== false) $iconName = 'ti-backpack';
+              
+              $statusBadge = strtolower($recentRow['STATUS']);
+        ?>
+        <div class="item-card <?= $isLost ? '' : 'is-found' ?>">
           <div class="item-top">
-            <div class="item-icon lost"><i class="ti ti-device-mobile"></i></div>
+            <div class="item-icon <?= $iconBase ?>"><i class="ti <?= $iconName ?>"></i></div>
             <div style="flex:1">
-              <div class="item-name">Samsung Galaxy S23 (Black)</div>
-              <div class="item-loc"><i class="ti ti-map-pin"></i> Near KUET Cafeteria</div>
+              <div class="item-name"><?= htmlspecialchars($recentRow['ITEM_NAME']) ?></div>
+              <div class="item-loc"><i class="ti ti-map-pin"></i> <?= htmlspecialchars($recentRow['LOCATION']) ?></div>
             </div>
-            <span class="badge badge-lost">Lost</span>
+            <span class="badge badge-<?= $iconBase ?>"><?= ucfirst($iconBase) ?></span>
           </div>
           <div class="item-footer">
-            <span class="item-date">Jun 05, 2026</span>
-            <span class="badge badge-matched"><i class="ti ti-sparkles" style="font-size:10px"></i> 87% Match</span>
+            <span class="item-date"><?= date('M d, Y', strtotime($recentRow['ITEM_DATE'])) ?></span>
+            <span class="badge badge-<?= $statusBadge ?>"><?= ucfirst($statusBadge) ?></span>
           </div>
         </div>
-        <div class="item-card is-found" onclick="openItemModal('Black Leather Wallet','Found','ECE Department','Jun 06, 2026','Accessories','Black','Has student card inside','Unclaimed')">
-          <div class="item-top">
-            <div class="item-icon found"><i class="ti ti-wallet"></i></div>
-            <div style="flex:1">
-              <div class="item-name">Black Leather Wallet</div>
-              <div class="item-loc"><i class="ti ti-map-pin"></i> ECE Department</div>
-            </div>
-            <span class="badge badge-found">Found</span>
-          </div>
-          <div class="item-footer">
-            <span class="item-date">Jun 06, 2026</span>
-            <span class="badge badge-active">Unclaimed</span>
-          </div>
-        </div>
-        <div class="item-card" onclick="openItemModal('Blue Backpack','Lost','Library 2nd Floor','Jun 07, 2026','Bags','Blue','HP Laptop inside, sticker on front','Active')">
-          <div class="item-top">
-            <div class="item-icon lost"><i class="ti ti-backpack"></i></div>
-            <div style="flex:1">
-              <div class="item-name">Blue Backpack — HP Laptop inside</div>
-              <div class="item-loc"><i class="ti ti-map-pin"></i> Library 2nd Floor</div>
-            </div>
-            <span class="badge badge-lost">Lost</span>
-          </div>
-          <div class="item-footer">
-            <span class="item-date">Jun 07, 2026</span>
-            <span class="badge badge-active">Active</span>
-          </div>
-        </div>
-        <div class="item-card is-found" onclick="openItemModal('Student ID Card','Found','Admin Building','Jun 07, 2026','Documents','—','KUET ID Card 2001045','Claimed')">
-          <div class="item-top">
-            <div class="item-icon found"><i class="ti ti-id-badge"></i></div>
-            <div style="flex:1">
-              <div class="item-name">Student ID Card</div>
-              <div class="item-loc"><i class="ti ti-map-pin"></i> Admin Building</div>
-            </div>
-            <span class="badge badge-found">Found</span>
-          </div>
-          <div class="item-footer">
-            <span class="item-date">Jun 07, 2026</span>
-            <span class="badge badge-claimed">Claimed</span>
-          </div>
-        </div>
+        <?php endwhile; ?>
       </div>
     </div>
 
     <div>
-      <div class="section-head"><div class="section-title">Notifications</div></div>
+      <div class="section-head"><div class="section-title">Recent Notifications</div></div>
       <div class="card">
         <div class="notif-list">
+          <?php
+            $dashNotifUserId = $_SESSION['user_id'] ?? 0;
+            $dashNotifSql = "BEGIN :cursor := FN_GET_USER_NOTIFICATIONS(:user_id); END;";
+            $dashNotifStmt = oci_parse($conn, $dashNotifSql);
+            $dashNotifCursor = oci_new_cursor($conn);
+            oci_bind_by_name($dashNotifStmt, ":cursor", $dashNotifCursor, -1, OCI_B_CURSOR);
+            oci_bind_by_name($dashNotifStmt, ":user_id", $dashNotifUserId);
+            oci_execute($dashNotifStmt);
+            oci_execute($dashNotifCursor);
+            
+            $notifCount = 0;
+            while(($notifRow = oci_fetch_assoc($dashNotifCursor)) && $notifCount < 3): 
+                $msg = $notifRow['MESSAGE'];
+                $isMatch = stripos($msg, 'match') !== false;
+                $isApprove = stripos($msg, 'approved') !== false;
+                $iconClass = $isMatch ? 'match' : ($isApprove ? 'claim' : 'info');
+                $iconType = $isMatch ? 'ti-sparkles' : ($isApprove ? 'ti-circle-check' : 'ti-info-circle');
+          ?>
           <div class="notif-item">
-            <div class="notif-icon match"><i class="ti ti-sparkles"></i></div>
+            <div class="notif-icon <?= $iconClass ?>"><i class="ti <?= $iconType ?>"></i></div>
             <div style="flex:1">
-              <div class="notif-text">87% match found for your <strong>Samsung S23</strong> — a similar phone found at Cafeteria.</div>
-              <div class="notif-time">2 hours ago</div>
+              <div class="notif-text"><?= htmlspecialchars($msg) ?></div>
+              <div class="notif-time"><?= date('M d \a\t g:i A', strtotime($notifRow['CREATED_AT'])) ?></div>
             </div>
+            <?php if($notifRow['IS_READ'] == 'N'): ?>
             <div class="notif-unread"></div>
+            <?php endif; ?>
           </div>
-          <div class="notif-item">
-            <div class="notif-icon claim"><i class="ti ti-clipboard-check"></i></div>
-            <div style="flex:1">
-              <div class="notif-text">Your claim for <strong>Black Rimmed Glasses</strong> has been <strong style="color:var(--green)">approved</strong>.</div>
-              <div class="notif-time">Yesterday</div>
-            </div>
-            <div class="notif-unread"></div>
-          </div>
-          <div class="notif-item">
-            <div class="notif-icon info"><i class="ti ti-info-circle"></i></div>
-            <div style="flex:1">
-              <div class="notif-text">A <strong>Student ID Card</strong> matching your description was turned in at Admin Building.</div>
-              <div class="notif-time">2 days ago</div>
-            </div>
-            <div class="notif-unread"></div>
-          </div>
+          <?php $notifCount++; endwhile; ?>
+          <?php if($notifCount == 0): ?>
+          <div style="padding:20px;text-align:center;color:var(--txt3);font-size:13px">No new notifications</div>
+          <?php endif; ?>
         </div>
       </div>
     </div>

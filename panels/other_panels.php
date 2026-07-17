@@ -85,102 +85,114 @@ oci_execute($notifCursor);
   </div>
 </div>
 
+<?php
+// Fetch Analytics Data
+$overallStatsSql = "BEGIN :cursor := FN_GET_OVERALL_STATS(); END;";
+$overallStatsStmt = oci_parse($conn, $overallStatsSql);
+$overallStatsCursor = oci_new_cursor($conn);
+oci_bind_by_name($overallStatsStmt, ":cursor", $overallStatsCursor, -1, OCI_B_CURSOR);
+oci_execute($overallStatsStmt);
+oci_execute($overallStatsCursor);
+$overallStats = oci_fetch_assoc($overallStatsCursor);
+
+$totalLost = $overallStats['TOTAL_LOST'] ?? 0;
+$totalFound = $overallStats['TOTAL_FOUND'] ?? 0;
+$totalRecovered = $overallStats['TOTAL_RECOVERED'] ?? 0;
+$totalActiveUsers = $overallStats['TOTAL_USERS'] ?? 0;
+$avgResDays = $overallStats['AVG_RESOLUTION_DAYS'] ?? 'N/A';
+$avgAccuracy = $overallStats['AVG_HIGH_MATCH_ACCURACY'] ?? 'N/A';
+
+$recoveryRate = ($totalLost > 0) ? round(($totalRecovered / $totalLost) * 100) : 0;
+
+$catStatsSql = "BEGIN :cursor := FN_GET_CATEGORY_STATS(); END;";
+$catStatsStmt = oci_parse($conn, $catStatsSql);
+$catStatsCursor = oci_new_cursor($conn);
+oci_bind_by_name($catStatsStmt, ":cursor", $catStatsCursor, -1, OCI_B_CURSOR);
+oci_execute($catStatsStmt);
+oci_execute($catStatsCursor);
+
+$hotspotSql = "BEGIN :cursor := FN_GET_HOTSPOT_STATS(); END;";
+$hotspotStmt = oci_parse($conn, $hotspotSql);
+$hotspotCursor = oci_new_cursor($conn);
+oci_bind_by_name($hotspotStmt, ":cursor", $hotspotCursor, -1, OCI_B_CURSOR);
+oci_execute($hotspotStmt);
+oci_execute($hotspotCursor);
+?>
 <!-- ══ ANALYTICS ══ -->
 <div class="panel" id="panel-analytics">
   <div class="stats-grid">
     <div class="stat-card cyan">
       <div class="stat-icon cyan"><i class="ti ti-percentage"></i></div>
-      <div class="stat-num">40%</div>
+      <div class="stat-num"><?= $recoveryRate ?>%</div>
       <div class="stat-label">Recovery Rate</div>
-      <div class="stat-delta" style="color:var(--cyan)">19 of 47 items</div>
+      <div class="stat-delta" style="color:var(--cyan)"><?= $totalRecovered ?> of <?= $totalLost ?> items</div>
     </div>
     <div class="stat-card purple">
       <div class="stat-icon purple"><i class="ti ti-clock"></i></div>
-      <div class="stat-num">3.2d</div>
+      <div class="stat-num"><?= $avgResDays ?><?= is_numeric($avgResDays) ? 'd' : '' ?></div>
       <div class="stat-label">Avg Resolution Time</div>
       <div class="stat-delta" style="color:var(--purple)">Days to match</div>
     </div>
     <div class="stat-card green">
       <div class="stat-icon green"><i class="ti ti-target"></i></div>
-      <div class="stat-num">91%</div>
-      <div class="stat-label">Match Accuracy</div>
-      <div class="stat-delta up">Confirmed matches</div>
+      <div class="stat-num"><?= $avgAccuracy ?><?= is_numeric($avgAccuracy) ? '%' : '' ?></div>
+      <div class="stat-label">High Match Accuracy</div>
+      <div class="stat-delta up">Average for >75%</div>
     </div>
     <div class="stat-card gold">
       <div class="stat-icon gold"><i class="ti ti-users"></i></div>
-      <div class="stat-num">128</div>
+      <div class="stat-num"><?= $totalActiveUsers ?></div>
       <div class="stat-label">Active Users</div>
-      <div class="stat-delta up">This month</div>
+      <div class="stat-delta up">All time</div>
     </div>
   </div>
 
   <div class="analytics-grid">
     <div class="chart-card">
       <div class="chart-title">Lost Items by Category</div>
+      <?php
+        $colors = ['var(--cyan)', 'var(--gold)', 'var(--purple)', 'var(--green)', 'var(--red)'];
+        $c = 0;
+        $maxCatCount = 0;
+        $cats = [];
+        while($catRow = oci_fetch_assoc($catStatsCursor)): 
+            $cats[] = $catRow;
+            if($catRow['ITEM_COUNT'] > $maxCatCount) $maxCatCount = $catRow['ITEM_COUNT'];
+        endwhile;
+        
+        foreach($cats as $cat):
+            $pct = $maxCatCount > 0 ? ($cat['ITEM_COUNT'] / $maxCatCount) * 100 : 0;
+            $color = $colors[$c % count($colors)];
+            $c++;
+      ?>
       <div class="bar-row">
-        <div class="bar-label">Electronics</div>
+        <div class="bar-label"><?= htmlspecialchars($cat['CATEGORY']) ?></div>
         <div class="bar-track">
-          <div class="bar-fill" style="width:72%;background:var(--cyan)"></div>
+          <div class="bar-fill" style="width:<?= $pct ?>%;background:<?= $color ?>"></div>
         </div>
-        <div class="bar-val">18</div>
+        <div class="bar-val"><?= $cat['ITEM_COUNT'] ?></div>
       </div>
-      <div class="bar-row">
-        <div class="bar-label">Documents</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:48%;background:var(--gold)"></div>
-        </div>
-        <div class="bar-val">12</div>
-      </div>
-      <div class="bar-row">
-        <div class="bar-label">Accessories</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:36%;background:var(--purple)"></div>
-        </div>
-        <div class="bar-val">9</div>
-      </div>
-      <div class="bar-row">
-        <div class="bar-label">Bags</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:28%;background:var(--green)"></div>
-        </div>
-        <div class="bar-val">7</div>
-      </div>
-      <div class="bar-row">
-        <div class="bar-label">Keys</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:12%;background:var(--red)"></div>
-        </div>
-        <div class="bar-val">3</div>
-      </div>
+      <?php endforeach; ?>
+      <?php if(empty($cats)): ?>
+      <div style="text-align:center;color:var(--txt3);font-size:13px;padding:20px 0">No data available</div>
+      <?php endif; ?>
     </div>
 
     <div class="chart-card">
       <div class="chart-title">Top Hotspot Locations</div>
+      <?php
+        $rank = 1;
+        while($hotRow = oci_fetch_assoc($hotspotCursor)):
+      ?>
       <div class="hotspot-item">
-        <div class="hotspot-rank">01</div>
-        <div class="hotspot-name">Cafeteria / Canteen</div>
-        <div class="hotspot-count">14 items</div>
+        <div class="hotspot-rank"><?= str_pad($rank, 2, '0', STR_PAD_LEFT) ?></div>
+        <div class="hotspot-name"><?= htmlspecialchars($hotRow['LOCATION']) ?></div>
+        <div class="hotspot-count"><?= $hotRow['ITEM_COUNT'] ?> items</div>
       </div>
-      <div class="hotspot-item">
-        <div class="hotspot-rank">02</div>
-        <div class="hotspot-name">Library (All Floors)</div>
-        <div class="hotspot-count">11 items</div>
-      </div>
-      <div class="hotspot-item">
-        <div class="hotspot-rank">03</div>
-        <div class="hotspot-name">ECE Department</div>
-        <div class="hotspot-count">8 items</div>
-      </div>
-      <div class="hotspot-item">
-        <div class="hotspot-rank">04</div>
-        <div class="hotspot-name">Admin Building</div>
-        <div class="hotspot-count">6 items</div>
-      </div>
-      <div class="hotspot-item">
-        <div class="hotspot-rank">05</div>
-        <div class="hotspot-name">Main Gate / Entry</div>
-        <div class="hotspot-count">4 items</div>
-      </div>
+      <?php $rank++; endwhile; ?>
+      <?php if($rank == 1): ?>
+      <div style="text-align:center;color:var(--txt3);font-size:13px;padding:20px 0">No hotspots yet</div>
+      <?php endif; ?>
     </div>
 
     <div class="chart-card">
@@ -219,15 +231,15 @@ oci_execute($notifCursor);
 
     <div class="chart-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
       <div class="chart-title" style="text-align:center">Overall Recovery</div>
-      <div class="arc-num">40%</div>
+      <div class="arc-num"><?= $recoveryRate ?>%</div>
       <div class="arc-label">of lost items recovered</div>
       <div style="margin-top:14px;font-size:12px;color:var(--txt3);text-align:center">Target: 60% by end of semester
       </div>
       <div style="width:100%;height:6px;background:var(--navy);border-radius:3px;margin-top:12px;overflow:hidden">
-        <div style="width:67%;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:3px">
+        <div style="width:<?= $recoveryRate ?>%;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:3px">
         </div>
       </div>
-      <div style="font-size:11px;color:var(--txt3);margin-top:6px">67% toward target</div>
+      <div style="font-size:11px;color:var(--txt3);margin-top:6px"><?= $recoveryRate ?>% toward target</div>
     </div>
   </div>
 </div>
